@@ -10,6 +10,7 @@ import Home from "./pages/Home";
 import Jovens from "./pages/Jovens";
 import Ranking from "./pages/Ranking";
 import Eventos from "./pages/Eventos";
+import Chamada from "./pages/Chamada";
 
 export default function App() {
 
@@ -38,6 +39,11 @@ export default function App() {
                 <Route
                     path="/eventos"
                     element={<Eventos />}
+                />
+
+                <Route
+                    path="/chamada"
+                    element={<Chamada />}
                 />
 
             </Routes>

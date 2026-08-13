@@ -1,6 +1,6 @@
 const express = require("express");
 
-const db = require("../database/database");
+const { db } = require("../database/database");
 
 const router = express.Router();
 
@@ -42,6 +42,63 @@ router.get("/", (req, res) => {
     `).all();
 
     res.json(ranking);
+});
+
+/*
+|--------------------------------------------------------------------------
+| REGISTRAR CHAMADA EM LOTE (todos os jovens de uma vez)
+|--------------------------------------------------------------------------
+*/
+
+router.post("/:eventoId/chamada/todos", (req, res) => {
+
+    const { status } = req.body;
+
+    if (
+        !["presente", "ausente", "justificado"].includes(status)
+    ) {
+        return res.status(400).json({
+            erro: "Status inválido"
+        });
+    }
+
+    const evento = db.prepare(`
+        SELECT *
+        FROM eventos
+        WHERE id = ?
+    `).get(req.params.eventoId);
+
+    if (!evento) {
+        return res.status(404).json({
+            erro: "Evento não encontrado"
+        });
+    }
+
+    const jovens = db.prepare(`
+        SELECT id
+        FROM jovens
+    `).all();
+
+    const pontos = status === "ausente" ? 0 : PONTUACAO[evento.tipo];
+
+    const upsert = db.prepare(`
+        INSERT INTO presencas (jovem_id, evento_id, status, pontos)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT(jovem_id, evento_id)
+        DO UPDATE SET status = excluded.status, pontos = excluded.pontos
+    `);
+
+    const transacao = db.transaction((lista) => {
+        for (const jovem of lista) {
+            upsert.run(jovem.id, req.params.eventoId, status, pontos);
+        }
+    });
+
+    transacao(jovens);
+
+    res.json({
+        mensagem: "Chamada em lote registrada com sucesso"
+    });
 });
 
 module.exports = router;

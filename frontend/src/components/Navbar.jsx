@@ -28,6 +28,10 @@ export default function Navbar() {
                     Eventos
                 </Link>
 
+                <Link to="/chamada">
+                    Chamada
+                </Link>
+
             </div>
 
         </nav>

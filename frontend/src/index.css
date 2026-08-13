@@ -779,3 +779,340 @@ button {
 
   background: var(--azul-2);
 }
+
+.ranking-sem-foto {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  color: var(--branco);
+
+  font-size: 30px;
+}
+
+.podio-card h2 {
+  font-size: 10px;
+
+  margin: 15px 0 5px;
+
+  color: var(--azul);
+}
+
+.podio-card strong {
+  color: var(--vermelho);
+}
+
+.ranking-list {
+  background: var(--branco);
+
+  padding: 25px;
+
+  border-radius: 16px;
+}
+
+.ranking-list h2 {
+  margin-bottom: 20px;
+
+  color: var(--azul);
+}
+
+.ranking-row {
+  display: flex;
+
+  align-items: center;
+
+  gap: 20px;
+
+  padding: 13px 5px;
+
+  border-bottom: 1px solid var(--cinza-2);
+}
+
+.ranking-pos {
+  width: 30px;
+
+  font-weight: 900;
+
+  color: var(--texto-secundario)
+}
+
+.ranking-nome {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  flex: 1;
+}
+
+.ranking-nome img,
+.mini-foto {
+  width: 42px;
+  height: 42px;
+
+  border-radius: 50%;
+
+  object-fit: cover;
+
+  background: var(--azul-2);
+}
+
+.mini-foto {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  color: var(--branco);
+
+  font-weight: 800;
+}
+
+.ranking-stats {
+  display: flex;
+
+  gap: 15px;
+
+  color: var(--texto-secundario);
+
+  font-size: 13px;
+}
+
+.pontos {
+  color: var(--vermelho);
+
+  min-width: 80px;
+
+  text-align: center;
+}
+
+.vazio {
+  text-align: center;
+
+  padding: 80px;
+
+  color: var(--texto-secundario);
+}
+
+@media (max-width: 700px) {
+
+  .navbar {
+    padding: 0 20px;
+  }
+
+  .nav-links {
+    gap: 12px;
+  }
+
+  .nav-links a {
+    font-size: 12px;
+  }
+
+  .hero {
+    padding: 60px 25px;
+  }
+
+  .home-info {
+    grid-template-columns: 1fr;
+
+    padding: 35px 25px;
+  }
+
+  .pagina {
+    padding: 35px 20px;
+  }
+
+  .pagina-header {
+    align-items: center;
+
+    gap: 20px;
+
+    flex-direction: column;
+  }
+
+  .pagina-header h1 {
+    font-size: 35px;
+  }
+
+  .podio {
+    grid-template-columns: 1fr;
+  }
+
+  .dados {
+    grid-template-columns: 1fr;
+  }
+
+  .evento-card {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .evento-card .btn-primary {
+    width: 100%;
+  }
+
+  .ranking-stats {
+    display: none;
+  }
+
+  .chamada-jovem {
+    gap: 10px;
+  }
+
+}
+
+.sunitulo-modal {
+  color: var(--texto-secundario);
+
+  margin: 8px 0 25px;
+
+  line-height: 1.5;
+}
+
+.formulario select {
+  padding: 13px;
+
+  border: 1px solid var(--cinza-2);
+
+  border-radius: 8px;
+
+  outline: none;
+
+  background: var(--branco);
+
+  font-size: 14px;
+
+  cursor: pointer;
+}
+
+.formulario select:focus {
+  border-color: var(--azul-3);
+}
+
+.chamada-header {
+  margin-bottom: 10px;
+}
+
+.chamada-header h2 {
+  color: var(--azul);
+
+  margin-top: 12px;
+
+  font-size: 27px;
+}
+
+.chamada-header p {
+  color: var(--texto-secundario);
+
+  margin-top: 5px;
+}
+
+.evento-tipo {
+  display: inline-block;
+
+  width: fit-content;
+
+  margin: 8px 0;
+
+  padding: 6px 10px;
+
+  background: #fee2e2;
+
+  color: #991b1b;
+
+  border-radius: 6px;
+
+  font-size: 12px;
+
+  font-weight: 800;
+}
+
+.chamada-botoes button {
+  transition: .15s;
+}
+
+.chamada-botoes button:hover {
+  transform: scale(1.08);
+}
+
+.chamada-botoes button.ativo {
+  outline: 3px solid var(--azul);
+
+  transform: scale(1.05);
+}
+
+.chamada-selecao {
+  background: var(--branco);
+
+  padding: 20px;
+
+  border-radius: 12px;
+
+  margin-bottom: 25px;
+
+  box-shadow: 0 5px 20px rgba(0, 0, 0, .05);
+}
+
+.chamada-selecao label {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.chamada-selecao select {
+  padding: 13px;
+
+  border: 1px solid var(--cinza-2);
+  border-radius: 8px;
+
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.chamada-pagina {
+  max-width: 100%;
+
+  background: var(--branco);
+
+  padding: 25px;
+
+  border-radius: 16px;
+}
+
+.chamada-lote {
+  display: flex;
+
+  gap: 10px;
+
+  margin: 15px 0 20px;
+
+  flex-wrap: wrap;
+}
+
+.btn-lote {
+  border: none;
+
+  padding: 13px 18px;
+
+  border-radius: 9px;
+
+  font-weight: 700;
+
+  transition: .2s;
+}
+
+.btn-lote.justificado {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.btn-lote:hover {
+  filter: brightness(0.95);
+}

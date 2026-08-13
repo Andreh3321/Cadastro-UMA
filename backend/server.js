@@ -2,9 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 
-const jovensRoutes = require("./routes.jovens");
-const eventosRoutes = require("./routes.eventos");
-const rankingRoutes = require("./routes.ranking");
+const jovensRoutes = require("./routes/jovens");
+const eventosRoutes = require("./routes/eventos");
+const rankingRoutes = require("./routes/ranking");
 
 const app = express();
 
