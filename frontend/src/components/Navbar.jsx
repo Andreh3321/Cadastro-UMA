@@ -31,6 +31,10 @@ export default function Navbar() {
                 <Link to="/chamada">
                     Chamada
                 </Link>
+                
+                <Link to="/importar-chamadas">
+                    Importar
+                </Link>
 
             </div>
 

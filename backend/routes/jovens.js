@@ -199,4 +199,72 @@ router.delete("/:id", (req, res) => {
     });
 });
 
+router.post("/importar", (req, res) => {
+
+    const { jovens } = req.body;
+
+    if (!Array.isArray(jovens) || jovens.length == 0) {
+        return res.status(400).json({
+            erro: "Nenhum jovem para importar"
+        });
+    };
+
+    const inserir = db.prepare(`
+        INSERT INTO jovens (
+        nome,
+        data_nascimento,
+        telefone,
+        telefone_emergencia,
+        endereco,
+        data_batismo,
+        instagram,
+        foto
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, NULL)
+        `);
+
+    const resultado = {
+        importados: 0,
+        falhas: []
+    };
+
+    const transacao = db.transaction((lista) => {
+
+        lista.forEach((jovem, index) => {
+            if (!jovem.nome || !jovem.data_nascimento) {
+                resultado.falhas.push({
+                    linha: index + 1,
+                    motivo: "Nome ou data de nascimento ausente",
+                    nome: jovem.nome || "(sem nome)"
+                });
+                return;
+            }
+
+            try {
+                inserir.run(
+                    jovem.nome,
+                    jovem.data_nascimento,
+                    jovem.telefone || null,
+                    jovem.telefone_emergencia || null,
+                    jovem.endereco || null,
+                    jovem.data_batismo || null,
+                    jovem.instagram || null,
+                );
+                resultado.importados++;
+            } catch (erro) {
+                resultado.falhas.push({
+                    linha: index + 1,
+                    motivo: erro.message,
+                    nome: jovem.nome
+                });
+            }
+        });
+    });
+    transacao(jovens);
+
+    res.json(resultado);
+});
+
+
+
 module.exports = router;

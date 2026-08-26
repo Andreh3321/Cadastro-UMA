@@ -209,5 +209,52 @@ export async function buscarRanking() {
     return response.json();
 }
 
+/*
+|--------------------------------------------------------------------------
+| IMPORTAÇÃO
+|--------------------------------------------------------------------------
+*/
+
+export async function importarJovens(jovens) {
+
+    const response = await fetch(
+        `${API}/jovens/importar`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ jovens })
+        }
+    );
+
+    return response.json();
+}
+
+/*
+|--------------------------------------------------------------------------
+| IMPORTAÇÃO DE CHAMADAS
+|--------------------------------------------------------------------------
+*/
+
+export async function importarChamadas(eventos){
+    const repsonse = await fetch(
+        `${API}/importacao/chamadas`,
+        {
+            method: "POST",
+
+            headers: {
+                "Content=Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                eventos
+            })
+        }
+    );
+
+    return response.json();
+}
+
 
 export { API };

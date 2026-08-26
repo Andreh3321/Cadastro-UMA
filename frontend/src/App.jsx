@@ -5,12 +5,14 @@ import {
 } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
+import BotaoInstalar from "./components/BotaoInstalar";
 
 import Home from "./pages/Home";
 import Jovens from "./pages/Jovens";
 import Ranking from "./pages/Ranking";
 import Eventos from "./pages/Eventos";
 import Chamada from "./pages/Chamada";
+import ImportarChamadas from "./pages/ImportarChamadas";
 
 export default function App() {
 
@@ -18,6 +20,8 @@ export default function App() {
         <BrowserRouter>
 
             <Navbar />
+
+            <BotaoInstalar />
 
             <Routes>
 
@@ -44,6 +48,11 @@ export default function App() {
                 <Route
                     path="/chamada"
                     element={<Chamada />}
+                />
+
+                <Route
+                    path="/importar-chamadas"
+                    element={<ImportarChamadas />}
                 />
 
             </Routes>

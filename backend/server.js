@@ -5,6 +5,7 @@ const path = require("path");
 const jovensRoutes = require("./routes/jovens");
 const eventosRoutes = require("./routes/eventos");
 const rankingRoutes = require("./routes/ranking");
+const importacaoRoutes = require("./routes/importacao");
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/jovens", jovensRoutes);
 app.use("/api/eventos", eventosRoutes);
 app.use("/api/ranking", rankingRoutes);
+app.use("/api/importacao", importacaoRoutes);
 
 app.get("/", (req, res) => {
     res.json({
