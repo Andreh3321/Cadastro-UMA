@@ -193,6 +193,17 @@ export async function registrarChamadaEmLote(eventoId, status) {
     return response.json();
 }
 
+export async function desmarcarChamada(eventoId, jovemId) {
+    const response = await fetch(
+        `${API}/eventos/${eventoId}/chamada/${jovemId}`,
+        {
+            method: "DELETE"
+        }
+    );
+
+    return response.json();
+}
+
 
 /*
 |--------------------------------------------------------------------------
@@ -237,7 +248,7 @@ export async function importarJovens(jovens) {
 |--------------------------------------------------------------------------
 */
 
-export async function importarChamadas(eventos){
+export async function importarChamadas(eventos) {
     const repsonse = await fetch(
         `${API}/importacao/chamadas`,
         {
@@ -250,6 +261,35 @@ export async function importarChamadas(eventos){
             body: JSON.stringify({
                 eventos
             })
+        }
+    );
+
+    return response.json();
+}
+
+export async function finalizarChamada(eventoId) {
+    const response = await fetch(
+        `${API}/eventos/${eventoId}/finalizar-chamada`,
+        {
+            method: "POST"
+        }
+    );
+
+    return response.json();
+}
+
+/*
+|--------------------------------------------------------------------------
+| PROGRAMAÇÃO
+|--------------------------------------------------------------------------
+*/
+
+export async function gerarProgramacao() {
+
+    const response = await fetch(
+        `${API}/eventos/gerar-programacao`,
+        {
+            method: "POST"
         }
     );
 

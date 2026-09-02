@@ -4,7 +4,10 @@ import {
     buscarEventos,
     buscarEvento,
     cadastrarEvento,
-    registrarChamada
+    registrarChamada,
+    gerarProgramacao,
+    desmarcarChamada,
+    excluirEvento
 } from "../api";
 
 
@@ -102,9 +105,20 @@ export default function Eventos() {
 
     async function carregarEventos() {
 
-        const dados = await buscarEventos();
+        try {
+            await gerarProgramacao();
 
-        setEventos(dados);
+            const dados = await buscarEventos();
+
+            setEventos(dados);
+        }
+
+        catch (erro) {
+            console.error(
+                "Erro ao carregar programação: ",
+                erro
+            )
+        }
 
     }
 
@@ -167,6 +181,43 @@ export default function Eventos() {
 
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | EXCLUIR EVENTO
+    |--------------------------------------------------------------------------
+    */
+
+    async function excluir(id) {
+
+        const confirmar = window.confirm(
+            "Deseja realmente excluir este evento?"
+        );
+
+        if (!confirmar) {
+            return;
+        }
+
+        try {
+            await excluirEvento(id);
+
+            setEventoSelecionado(null);
+
+            await carregarEventos();
+        }
+
+        catch (erro) {
+            console.error(
+                "Erro ao excluir evento: ",
+                erro
+            );
+
+            alert(
+                "Não foi possível excluir o evento."
+            )
+        }
+    }
+
+
 
     /*
     |--------------------------------------------------------------------------
@@ -196,6 +247,47 @@ export default function Eventos() {
         setEventoSelecionado(dados);
 
     }
+
+    async function desmarcar(jovemId) {
+        await desmarcarChamada(
+            eventoSelecionado.evento.id,
+            jovemId
+        );
+
+        const dados =
+            await buscarEvento(
+                eventoSelecionado.evento.id
+            );
+
+        setEventoSelecionado(dados);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ORGANIZAR EVENTOS POR DATA
+    |--------------------------------------------------------------------------
+    */
+
+    const eventosOrdenados = [...eventos].sort(
+        (a, b) =>
+            new Date(a.data) -
+            new Date(b.data)
+    );
+
+    const eventosPorData =
+        eventosOrdenados.reduce(
+            (grupos, evento) => {
+                if (!grupos[evento.data]) {
+
+                    grupos[evento.data] = [];
+                }
+
+                grupos[evento.data].push(evento);
+
+                return grupos;
+            },
+            {}
+        );
 
 
     /*
@@ -246,111 +338,207 @@ export default function Eventos() {
                 LISTA DE EVENTOS
             ========================================================= */}
 
-            <div className="eventos-lista">
+            <div className="eventos-agenda">
 
-                {eventos.length === 0 && (
+                {Object.entries(eventosPorData).map(
+                    ([data, eventosDoDia]) => {
 
-                    <div className="vazio">
-
-                        Nenhum evento cadastrado.
-
-                    </div>
-
-                )}
+                        const dataObj =
+                            new Date(
+                                data + "T00:00:00"
+                            );
 
 
-                {eventos.map(evento => (
+                        const hoje = new Date();
 
-                    <div
-                        className="evento-card"
-                        key={evento.id}
-                    >
+                        hoje.setHours(0, 0, 0, 0);
 
-                        <div className="evento-data">
 
-                            <strong>
+                        const amanha =
+                            new Date(hoje);
 
-                                {new Date(
-                                    evento.data +
-                                    "T00:00:00"
-                                ).getDate()}
+                        amanha.setDate(
+                            hoje.getDate() + 1
+                        );
 
-                            </strong>
 
-                            <span>
+                        let tituloData;
 
-                                {new Date(
-                                    evento.data +
-                                    "T00:00:00"
-                                ).toLocaleDateString(
+
+                        if (
+                            dataObj.getTime() ===
+                            hoje.getTime()
+                        ) {
+
+                            tituloData = "Hoje";
+
+                        } else if (
+                            dataObj.getTime() ===
+                            amanha.getTime()
+                        ) {
+
+                            tituloData = "Amanhã";
+
+                        } else {
+
+                            tituloData =
+                                dataObj.toLocaleDateString(
                                     "pt-BR",
                                     {
-                                        month: "short"
+                                        weekday: "long"
                                     }
-                                )}
+                                );
 
-                            </span>
-
-                        </div>
+                        }
 
 
-                        <div className="evento-info">
+                        return (
 
-                            <h2>
-                                {evento.nome}
-                            </h2>
+                            <section
+                                className="dia-eventos"
+                                key={data}
+                            >
 
+                                <div className="dia-eventos-header">
 
-                            <p>
+                                    <div>
 
-                                {evento.horario || "Horário não informado"}
+                                        <span>
+                                            {tituloData}
+                                        </span>
 
-                                {" • "}
+                                        <strong>
+                                            {
+                                                dataObj.toLocaleDateString(
+                                                    "pt-BR",
+                                                    {
+                                                        day: "2-digit",
+                                                        month: "2-digit",
+                                                        year: "numeric"
+                                                    }
+                                                )
+                                            }
+                                        </strong>
 
-                                {evento.local || "Local não informado"}
+                                    </div>
 
-                            </p>
-
-
-                            <span className="evento-tipo">
-
-                                {evento.tipo}
-
-                                {" — "}
-
-                                {TIPOS_EVENTO.find(
-                                    tipo =>
-                                        tipo.nome === evento.tipo
-                                )?.pontos || 0}
-
-                                {" pontos"}
-
-                            </span>
-
-
-                            <small>
-                                {evento.descricao}
-                            </small>
-
-                        </div>
+                                </div>
 
 
-                        <button
+                                <div className="eventos-do-dia">
 
-                            className="btn-primary"
+                                    {eventosDoDia.map(
+                                        evento => (
 
-                            onClick={() =>
-                                abrirChamada(evento.id)
-                            }
+                                            <div
+                                                className="evento-card"
+                                                key={evento.id}
+                                            >
 
-                        >
-                            Fazer chamada
+                                                <div className="evento-data">
 
-                        </button>
+                                                    <strong>
+                                                        {
+                                                            dataObj.getDate()
+                                                        }
+                                                    </strong>
 
-                    </div>
+                                                    <span>
+                                                        {
+                                                            dataObj.toLocaleDateString(
+                                                                "pt-BR",
+                                                                {
+                                                                    month: "short"
+                                                                }
+                                                            )
+                                                        }
+                                                    </span>
 
-                ))}
+                                                </div>
+
+
+                                                <div className="evento-info">
+
+                                                    <h2>
+                                                        {evento.nome}
+                                                    </h2>
+
+
+                                                    <p>
+                                                        {
+                                                            evento.horario ||
+                                                            "Horário não informado"
+                                                        }
+
+                                                        {" • "}
+
+                                                        {
+                                                            evento.local ||
+                                                            "Local não informado"
+                                                        }
+                                                    </p>
+
+
+                                                    <span className="evento-tipo">
+
+                                                        {evento.tipo}
+
+                                                        {" — "}
+
+                                                        {
+                                                            TIPOS_EVENTO.find(
+                                                                tipo =>
+                                                                    tipo.nome ===
+                                                                    evento.tipo
+                                                            )?.pontos || 0
+                                                        }
+
+                                                        {" pontos"}
+
+                                                    </span>
+
+
+                                                    <small>
+                                                        {evento.descricao}
+                                                    </small>
+
+                                                </div>
+
+                                                <div className="evento-acoes">
+                                                    <button
+                                                        className="btn-primary"
+                                                        onClick={() =>
+                                                            abrirChamada(
+                                                                evento.id
+                                                            )
+                                                        }
+                                                    >
+                                                        Fazer chamada
+                                                    </button>
+
+                                                    <button
+                                                        className="btn-excluir"
+                                                        onClick={() =>
+                                                            excluir(evento.id)
+                                                        }
+                                                    >
+                                                        Excluir
+                                                    </button>
+                                                </div>
+
+                                            </div>
+
+                                        )
+                                    )}
+
+                                </div>
+
+                            </section>
+
+                        );
+
+                    }
+                )}
 
             </div>
 
@@ -772,6 +960,16 @@ export default function Eventos() {
                                                 >
                                                     A
 
+                                                </button>
+
+                                                <button
+                                                    className="desmarcar"
+                                                    title="Desmarcar Chamada"
+                                                    onClick={() =>
+                                                        desmarcar(jovem.id)
+                                                    }
+                                                >
+                                                    -
                                                 </button>
 
                                             </div>

@@ -1,181 +1,798 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
     buscarEventos,
     buscarEvento,
     registrarChamada,
-    registrarChamadaEmLote
+    registrarChamadaEmLote,
+    finalizarChamada
 } from "../api";
+
 
 export default function Chamada() {
 
     const [eventos, setEventos] = useState([]);
+
     const [eventoId, setEventoId] = useState("");
+
     const [detalhe, setDetalhe] = useState(null);
-    const [carregando, setCarregando] = useState(false);
+
+    const [carregando, setCarregando] =
+        useState(false);
+
+    const [busca, setBusca] =
+        useState("");
+
+    const [finalizando, setFinalizando] =
+        useState(false);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CARREGAR EVENTOS
+    |--------------------------------------------------------------------------
+    */
 
     useEffect(() => {
-        buscarEventos().then(setEventos);
+
+        async function carregarEventos() {
+
+            const dados =
+                await buscarEventos();
+
+            setEventos(dados);
+
+        }
+
+        carregarEventos();
+
     }, []);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SELECIONAR EVENTO
+    |--------------------------------------------------------------------------
+    */
 
     async function selecionarEvento(id) {
 
         setEventoId(id);
 
+        setBusca("");
+
         if (!id) {
+
             setDetalhe(null);
+
+            return;
+
+        }
+
+
+        const dados =
+            await buscarEvento(id);
+
+        setDetalhe(dados);
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ATUALIZAR CHAMADA
+    |--------------------------------------------------------------------------
+    */
+
+    async function recarregarEvento() {
+
+        if (!eventoId) {
             return;
         }
 
-        const dados = await buscarEvento(id);
+
+        const dados =
+            await buscarEvento(eventoId);
+
         setDetalhe(dados);
+
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | MARCAR TODOS
+    |--------------------------------------------------------------------------
+    */
 
     async function marcarTodos(status) {
 
-        if (!eventoId) return;
+        if (!eventoId) {
+            return;
+        }
 
-        const confirmar = window.confirm(
-            `Marcar TODOS os jovens como "${status}" neste evento?`
-        );
 
-        if (!confirmar) return;
+        let mensagem = "";
+
+        if (status === "presente") {
+            mensagem =
+                "Marcar TODOS os jovens como presentes?";
+        }
+
+        if (status === "justificado") {
+            mensagem =
+                "Marcar TODOS os jovens como justificados?";
+        }
+
+        if (status === "ausente") {
+            mensagem =
+                "Marcar TODOS os jovens como ausentes?";
+        }
+
+
+        const confirmar =
+            window.confirm(mensagem);
+
+
+        if (!confirmar) {
+            return;
+        }
+
 
         setCarregando(true);
 
-        await registrarChamadaEmLote(eventoId, status);
 
-        const dados = await buscarEvento(eventoId);
-        setDetalhe(dados);
+        try {
 
-        setCarregando(false);
+            await registrarChamadaEmLote(
+                eventoId,
+                status
+            );
+
+            await recarregarEvento();
+
+        }
+
+        finally {
+
+            setCarregando(false);
+
+        }
+
     }
 
-    async function marcarIndividual(jovemId, status) {
 
-        await registrarChamada(eventoId, jovemId, status);
+    /*
+    |--------------------------------------------------------------------------
+    | MARCAR INDIVIDUAL
+    |--------------------------------------------------------------------------
+    */
 
-        const dados = await buscarEvento(eventoId);
-        setDetalhe(dados);
+    async function marcarIndividual(
+        jovemId,
+        status
+    ) {
+
+        setCarregando(true);
+
+
+        try {
+
+            await registrarChamada(
+                eventoId,
+                jovemId,
+                status
+            );
+
+            await recarregarEvento();
+
+        }
+
+        finally {
+
+            setCarregando(false);
+
+        }
+
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FINALIZAR CHAMADA
+    |--------------------------------------------------------------------------
+    */
+
+    async function finalizar() {
+
+        if (!eventoId || !detalhe) {
+            return;
+        }
+
+
+        const naoMarcados =
+            detalhe.jovens.filter(
+                jovem => !jovem.status
+            ).length;
+
+
+        if (naoMarcados === 0) {
+
+            alert(
+                "Todos os jovens já estão marcados."
+            );
+
+            return;
+
+        }
+
+
+        const confirmar =
+            window.confirm(
+                `Existem ${naoMarcados} jovem(ns) sem marcação.\n\n` +
+                "Eles serão registrados como ausentes.\n\n" +
+                "Deseja finalizar a chamada?"
+            );
+
+
+        if (!confirmar) {
+            return;
+        }
+
+
+        setFinalizando(true);
+
+
+        try {
+
+            const resposta =
+                await finalizarChamada(
+                    eventoId
+                );
+
+
+            await recarregarEvento();
+
+
+            alert(
+                `Chamada finalizada!\n\n` +
+                `${resposta.ausentes} jovem(ns) registrado(s) como ausente.`
+            );
+
+        }
+
+        finally {
+
+            setFinalizando(false);
+
+        }
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FILTRAR JOVENS
+    |--------------------------------------------------------------------------
+    */
+
+    const jovensFiltrados =
+        useMemo(() => {
+
+            if (!detalhe) {
+                return [];
+            }
+
+
+            return detalhe.jovens.filter(
+                jovem =>
+                    jovem.nome
+                        .toLowerCase()
+                        .includes(
+                            busca.toLowerCase()
+                        )
+            );
+
+        }, [detalhe, busca]);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CONTADORES
+    |--------------------------------------------------------------------------
+    */
+
+    const estatisticas =
+        useMemo(() => {
+
+            if (!detalhe) {
+
+                return {
+
+                    presentes: 0,
+
+                    justificados: 0,
+
+                    ausentes: 0,
+
+                    naoMarcados: 0
+
+                };
+
+            }
+
+
+            return {
+
+                presentes:
+                    detalhe.jovens.filter(
+                        jovem =>
+                            jovem.status ===
+                            "presente"
+                    ).length,
+
+                justificados:
+                    detalhe.jovens.filter(
+                        jovem =>
+                            jovem.status ===
+                            "justificado"
+                    ).length,
+
+                ausentes:
+                    detalhe.jovens.filter(
+                        jovem =>
+                            jovem.status ===
+                            "ausente"
+                    ).length,
+
+                naoMarcados:
+                    detalhe.jovens.filter(
+                        jovem =>
+                            !jovem.status
+                    ).length
+
+            };
+
+        }, [detalhe]);
+
 
     return (
-        <main className="pagina">
+
+        <main className="pagina chamada-mobile">
+
+            {/* =====================================================
+                CABEÇALHO
+            ====================================================== */}
 
             <div className="pagina-header">
+
                 <div>
-                    <span className="eyebrow">FREQUÊNCIA</span>
-                    <h1>Chamada</h1>
-                    <p>Selecione o culto e a data para fazer a chamada de todos de uma vez</p>
+
+                    <span className="eyebrow">
+                        FREQUÊNCIA
+                    </span>
+
+                    <h1>
+                        Chamada
+                    </h1>
+
+                    <p>
+                        Faça a chamada diretamente
+                        pelo celular.
+                    </p>
+
                 </div>
+
             </div>
 
-            <div className="chamada-selecao">
+
+            {/* =====================================================
+                SELEÇÃO DO EVENTO
+            ====================================================== */}
+
+            <section className="chamada-controle">
+
                 <label>
+
                     Culto / Evento
+
                     <select
                         value={eventoId}
-                        onChange={(e) => selecionarEvento(e.target.value)}
+                        onChange={
+                            e =>
+                                selecionarEvento(
+                                    e.target.value
+                                )
+                        }
                     >
-                        <option value="">Selecione um evento</option>
+
+                        <option value="">
+                            Selecione um evento
+                        </option>
 
                         {eventos.map(evento => (
-                            <option key={evento.id} value={evento.id}>
-                                {evento.tipo} — {new Date(evento.data + "T00:00:00").toLocaleDateString("pt-BR")}
-                                {evento.nome ? ` (${evento.nome})` : ""}
+
+                            <option
+                                key={evento.id}
+                                value={evento.id}
+                            >
+
+                                {evento.tipo}
+                                {" — "}
+                                {
+                                    new Date(
+                                        evento.data +
+                                        "T00:00:00"
+                                    ).toLocaleDateString(
+                                        "pt-BR"
+                                    )
+                                }
+
+                                {evento.nome
+                                    ? ` (${evento.nome})`
+                                    : ""
+                                }
+
                             </option>
+
                         ))}
+
                     </select>
+
                 </label>
-            </div>
+
+            </section>
+
+
+            {/* =====================================================
+                EVENTO SELECIONADO
+            ====================================================== */}
 
             {detalhe && (
-                <div className="chamada chamada-pagina">
 
-                    <div className="chamada-header">
-                        <span className="evento-tipo">{detalhe.evento.tipo}</span>
-                        <h2>{detalhe.evento.nome}</h2>
+                <>
+
+                    <section className="chamada-evento">
+
+                        <span className="evento-tipo">
+                            {detalhe.evento.tipo}
+                        </span>
+
+                        <h2>
+                            {detalhe.evento.nome}
+                        </h2>
+
                         <p>
-                            {new Date(detalhe.evento.data + "T00:00:00").toLocaleDateString("pt-BR")}
+                            {
+                                new Date(
+                                    detalhe.evento.data +
+                                    "T00:00:00"
+                                ).toLocaleDateString(
+                                    "pt-BR"
+                                )
+                            }
                         </p>
-                    </div>
 
-                    <div className="chamada-lote">
+                    </section>
+
+
+                    {/* =================================================
+                        CONTADORES
+                    ================================================= */}
+
+                    <section className="chamada-contadores">
+
+                        <div className="contador presente">
+
+                            <strong>
+                                {
+                                    estatisticas
+                                        .presentes
+                                }
+                            </strong>
+
+                            <span>
+                                Presentes
+                            </span>
+
+                        </div>
+
+
+                        <div className="contador justificado">
+
+                            <strong>
+                                {
+                                    estatisticas
+                                        .justificados
+                                }
+                            </strong>
+
+                            <span>
+                                Justificados
+                            </span>
+
+                        </div>
+
+
+                        <div className="contador ausente">
+
+                            <strong>
+                                {
+                                    estatisticas
+                                        .ausentes
+                                }
+                            </strong>
+
+                            <span>
+                                Ausentes
+                            </span>
+
+                        </div>
+
+
+                        <div className="contador nao-marcado">
+
+                            <strong>
+                                {
+                                    estatisticas
+                                        .naoMarcados
+                                }
+                            </strong>
+
+                            <span>
+                                Não marcados
+                            </span>
+
+                        </div>
+
+                    </section>
+
+
+                    {/* =================================================
+                        AÇÕES EM LOTE
+                    ================================================= */}
+
+                    <section className="chamada-lote">
+
                         <button
-                            className="btn-primary"
+                            className="btn-lote presente"
                             disabled={carregando}
-                            onClick={() => marcarTodos("presente")}
+                            onClick={() =>
+                                marcarTodos(
+                                    "presente"
+                                )
+                            }
                         >
-                            Marcar todos Presentes
+                            Todos Presentes
                         </button>
+
 
                         <button
                             className="btn-lote justificado"
                             disabled={carregando}
-                            onClick={() => marcarTodos("justificado")}
+                            onClick={() =>
+                                marcarTodos(
+                                    "justificado"
+                                )
+                            }
                         >
-                            Marcar todos Justificados
+                            Todos Justificados
                         </button>
+
 
                         <button
                             className="btn-lote ausente"
                             disabled={carregando}
-                            onClick={() => marcarTodos("ausente")}
+                            onClick={() =>
+                                marcarTodos(
+                                    "ausente"
+                                )
+                            }
                         >
-                            Marcar todos Ausentes
+                            Todos Ausentes
                         </button>
-                    </div>
 
-                    <div className="legenda">
-                        <span className="presente">✓ Presente</span>
-                        <span className="justificado">J Justificado</span>
-                        <span className="ausente">✕ Ausente</span>
-                    </div>
+                    </section>
 
-                    <div className="chamada-lista">
-                        {detalhe.jovens.map(jovem => (
-                            <div className="chamada-jovem" key={jovem.id}>
-                                <div>
-                                    <strong>{jovem.nome}</strong>
-                                    <small>
-                                        {jovem.status ? jovem.status : "Não marcado"}
-                                        {jovem.status && jovem.pontos !== null && ` • ${jovem.pontos} pts`}
-                                    </small>
+
+                    {/* =================================================
+                        PESQUISA
+                    ================================================= */}
+
+                    <section className="chamada-busca">
+
+                        <input
+                            type="text"
+                            placeholder="Pesquisar jovem..."
+                            value={busca}
+                            onChange={
+                                e =>
+                                    setBusca(
+                                        e.target.value
+                                    )
+                            }
+                        />
+
+                    </section>
+
+
+                    {/* =================================================
+                        LISTA
+                    ================================================= */}
+
+                    <section className="chamada-lista">
+
+                        {jovensFiltrados.map(
+                            jovem => (
+
+                                <div
+                                    className="chamada-jovem"
+                                    key={jovem.id}
+                                >
+
+                                    <div className="chamada-jovem-info">
+
+                                        <strong>
+                                            {jovem.nome}
+                                        </strong>
+
+                                        <small>
+
+                                            {jovem.status
+                                                ? jovem.status
+                                                : "Não marcado"
+                                            }
+
+                                            {jovem.status &&
+                                                jovem.pontos !== null &&
+                                                ` • ${jovem.pontos} pts`
+                                            }
+
+                                        </small>
+
+                                    </div>
+
+
+                                    <div className="chamada-botoes">
+
+                                        <button
+                                            type="button"
+                                            className={
+                                                jovem.status ===
+                                                    "presente"
+                                                    ? "ativo presente"
+                                                    : "presente"
+                                            }
+                                            disabled={
+                                                carregando
+                                            }
+                                            onClick={() =>
+                                                marcarIndividual(
+                                                    jovem.id,
+                                                    "presente"
+                                                )
+                                            }
+                                        >
+                                            P
+                                        </button>
+
+
+                                        <button
+                                            type="button"
+                                            className={
+                                                jovem.status ===
+                                                    "justificado"
+                                                    ? "ativo justificado"
+                                                    : "justificado"
+                                            }
+                                            disabled={
+                                                carregando
+                                            }
+                                            onClick={() =>
+                                                marcarIndividual(
+                                                    jovem.id,
+                                                    "justificado"
+                                                )
+                                            }
+                                        >
+                                            J
+                                        </button>
+
+
+                                        <button
+                                            type="button"
+                                            className={
+                                                jovem.status ===
+                                                    "ausente"
+                                                    ? "ativo ausente"
+                                                    : "ausente"
+                                            }
+                                            disabled={
+                                                carregando
+                                            }
+                                            onClick={() =>
+                                                marcarIndividual(
+                                                    jovem.id,
+                                                    "ausente"
+                                                )
+                                            }
+                                        >
+                                            A
+                                        </button>
+
+                                    </div>
+
                                 </div>
 
-                                <div className="chamada-botoes">
-                                    <button
-                                        className={jovem.status === "presente" ? "ativo presente" : "presente"}
-                                        onClick={() => marcarIndividual(jovem.id, "presente")}
-                                    >
-                                        P
-                                    </button>
+                            )
+                        )}
 
-                                    <button
-                                        className={jovem.status === "justificado" ? "ativo justificado" : "justificado"}
-                                        onClick={() => marcarIndividual(jovem.id, "justificado")}
-                                    >
-                                        J
-                                    </button>
+                    </section>
 
-                                    <button
-                                        className={jovem.status === "ausente" ? "ativo ausente" : "ausente"}
-                                        onClick={() => marcarIndividual(jovem.id, "ausente")}
-                                    >
-                                        A
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+
+                    {/* =================================================
+                        FINALIZAR
+                    ================================================= */}
+
+                    <section className="chamada-finalizar">
+
+                        <button
+                            className="btn-finalizar-chamada"
+                            disabled={
+                                finalizando ||
+                                carregando
+                            }
+                            onClick={finalizar}
+                        >
+
+                            {finalizando
+                                ? "Finalizando..."
+                                : "Finalizar chamada"
+                            }
+
+                        </button>
+
+
+                        {estatisticas.naoMarcados > 0 && (
+
+                            <p>
+
+                                Ainda existem{" "}
+
+                                <strong>
+                                    {
+                                        estatisticas
+                                            .naoMarcados
+                                    }
+                                </strong>
+
+                                {" "}
+                                jovens sem marcação.
+
+                            </p>
+
+                        )}
+
+                    </section>
+
+                </>
+
             )}
 
-            {!detalhe && eventoId === "" && (
+
+            {!detalhe && (
+
                 <div className="vazio">
-                    Selecione um evento acima para começar a chamada.
+
+                    Selecione um evento acima
+                    para começar a chamada.
+
                 </div>
+
             )}
+
         </main>
+
     );
+
 }
