@@ -141,7 +141,14 @@ export async function excluirEvento(id) {
         }
     );
 
-    return response.json();
+    const dados = await response.json();
+
+    if(!response.ok){
+        throw new Error(dados.erro || "Erro ao excluir evento");
+        
+    }
+
+    return dados;
 }
 
 
@@ -249,13 +256,13 @@ export async function importarJovens(jovens) {
 */
 
 export async function importarChamadas(eventos) {
-    const repsonse = await fetch(
+    const response = await fetch(
         `${API}/importacao/chamadas`,
         {
             method: "POST",
 
             headers: {
-                "Content=Type": "application/json"
+                "Content-Type": "application/json"
             },
 
             body: JSON.stringify({

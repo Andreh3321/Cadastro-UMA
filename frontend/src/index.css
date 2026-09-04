@@ -1603,3 +1603,77 @@ button {
   }
 
 }
+
+.eventos-hoje {
+  background: var(--azul);
+  color: var(--branco);
+  border-radius: 18px;
+  padding: 24px;
+  margin-bottom: 35px;
+}
+
+.eventos-hoje-header {
+  margin-bottom: 18px;
+}
+
+.eventos-hoje h2 {
+  margin-top: 6px;
+  font-size: 26px;
+  text-transform: capitalize;
+}
+
+.eventos-hoje .eyebrow {
+  color: #ff6b76;
+}
+
+.eventos-hoje-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.evento-hoje-card {
+  background: var(--branco);
+  color: var(--texto);
+  border-radius: 12px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.evento-hoje-card div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.evento-hoje-card strong {
+  font-size: 17px;
+}
+
+.evento-hoje-card span {
+  color: var(--texto-secundario);
+  font-size: 13px;
+}
+
+.eventos-hoje-vazio {
+  opacity: 0.8;
+}
+
+@media (max-width: 700px) {
+
+  .eventos-hoje {
+    padding: 20px;
+  }
+
+  .evento-hoje-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .evento-hoje-card .btn-primary {
+    width: 100%;
+  }
+}

@@ -35,7 +35,7 @@ router.get("/", (req, res) => {
 | GERAR PROGRAMAÇÃO PADRÃO
 |--------------------------------------------------------------------------
 |
-| Gera os eventos fixos dos próximos 45 dias.
+| Gera os eventos fixos de 01/02/2026 até 31/12/2026.
 |
 | Domingo:
 | - EBD
@@ -52,7 +52,7 @@ router.get("/", (req, res) => {
 | - Culto de quinta-feira
 |
 | Terceiro domingo:
-| - Santa Ceia
+| - Santa Ceia no lugar do Culto de domingo
 |
 | Quarto domingo:
 | - Não possui Ensaio local
@@ -61,7 +61,8 @@ router.get("/", (req, res) => {
 
 router.post("/gerar-programacao", (req, res) => {
 
-    const quantidadeDias = 45;
+    const dataInicio = new Date(2026, 1, 1);
+    const dataFim = new Date(2026, 11, 31);
 
     const eventosCriados = [];
 
@@ -77,7 +78,6 @@ router.post("/gerar-programacao", (req, res) => {
 
         VALUES (?, ?, ?, ?, ?, ?)
     `);
-
 
     /*
     |--------------------------------------------------------------------------
@@ -100,10 +100,8 @@ router.post("/gerar-programacao", (req, res) => {
                 data.getDate()
             ).padStart(2, "0");
 
-
         return `${ano}-${mes}-${dia}`;
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -119,7 +117,6 @@ router.post("/gerar-programacao", (req, res) => {
 
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | Verifica se evento já existe
@@ -128,20 +125,16 @@ router.post("/gerar-programacao", (req, res) => {
 
     const eventoExiste = db.prepare(`
         SELECT id
-
         FROM eventos
-
         WHERE data = ?
         AND tipo = ?
         AND nome = ?
-
         LIMIT 1
     `);
 
-
     /*
     |--------------------------------------------------------------------------
-    | Lista de eventos
+    | ADICIONAR EVENTO
     |--------------------------------------------------------------------------
     */
 
@@ -155,7 +148,6 @@ router.post("/gerar-programacao", (req, res) => {
         const dataISO =
             formatarData(data);
 
-
         const existente =
             eventoExiste.get(
                 dataISO,
@@ -163,11 +155,9 @@ router.post("/gerar-programacao", (req, res) => {
                 nome
             );
 
-
         if (existente) {
             return;
         }
-
 
         const resultado =
             inserirEvento.run(
@@ -176,9 +166,9 @@ router.post("/gerar-programacao", (req, res) => {
                 dataISO,
                 null,
                 null,
-                descricao || "Evento da programação padrão"
+                descricao ||
+                "Evento da programação padrão"
             );
-
 
         eventosCriados.push({
             id: resultado.lastInsertRowid,
@@ -186,9 +176,7 @@ router.post("/gerar-programacao", (req, res) => {
             tipo,
             data: dataISO
         });
-
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -198,25 +186,13 @@ router.post("/gerar-programacao", (req, res) => {
 
     const gerar = db.transaction(() => {
 
-        const hoje =
-            new Date();
-
-        hoje.setHours(0, 0, 0, 0);
-
-
         for (
-            let i = 0;
-            i < quantidadeDias;
-            i++
-        ) {
-
-            const data =
-                new Date(hoje);
-
+            let data = new Date(dataInicio);
+            data <= dataFim;
             data.setDate(
-                hoje.getDate() + i
-            );
-
+                data.getDate() + 1
+            )
+        ) {
 
             /*
             |--------------------------------------------------------------------------
@@ -230,12 +206,17 @@ router.post("/gerar-programacao", (req, res) => {
             const diaSemana =
                 data.getDay();
 
+            /*
+            |--------------------------------------------------------------------------
+            | DOMINGO
+            |--------------------------------------------------------------------------
+            */
 
             if (diaSemana === 0) {
 
                 /*
                 |--------------------------------------------------------------------------
-                | DOMINGO
+                | EBD
                 |--------------------------------------------------------------------------
                 */
 
@@ -244,7 +225,6 @@ router.post("/gerar-programacao", (req, res) => {
                     tipo: "EBD",
                     data
                 });
-
 
                 /*
                 |--------------------------------------------------------------------------
@@ -256,7 +236,6 @@ router.post("/gerar-programacao", (req, res) => {
 
                 const numeroDomingo =
                     numeroDoDomingo(data);
-
 
                 if (
                     numeroDomingo !== 4
@@ -274,17 +253,23 @@ router.post("/gerar-programacao", (req, res) => {
                 |--------------------------------------------------------------------------
                 | CULTO / SANTA CEIA
                 |--------------------------------------------------------------------------
-                | No terceiro domingo a Santa Ceia substitui o culto normal.
+                | No terceiro domingo a Santa Ceia
+                | substitui o Culto de domingo.
                 |--------------------------------------------------------------------------
                 */
 
-                if (numeroDomingo == 3) {
+                if (
+                    numeroDomingo === 3
+                ) {
+
                     adicionarEvento({
                         nome: "Santa Ceia",
                         tipo: "Santa Ceia",
                         data
-                    })
+                    });
+
                 } else {
+
                     adicionarEvento({
                         nome: "Culto de domingo",
                         tipo: "Culto de domingo",
@@ -292,9 +277,7 @@ router.post("/gerar-programacao", (req, res) => {
                     });
 
                 }
-
             }
-
 
             /*
             |--------------------------------------------------------------------------
@@ -312,7 +295,6 @@ router.post("/gerar-programacao", (req, res) => {
 
             }
 
-
             /*
             |--------------------------------------------------------------------------
             | TERÇA
@@ -329,7 +311,6 @@ router.post("/gerar-programacao", (req, res) => {
 
             }
 
-
             /*
             |--------------------------------------------------------------------------
             | QUINTA
@@ -345,14 +326,10 @@ router.post("/gerar-programacao", (req, res) => {
                 });
 
             }
-
         }
-
     });
 
-
     gerar();
-
 
     res.json({
 
@@ -368,6 +345,12 @@ router.post("/gerar-programacao", (req, res) => {
     });
 
 });
+
+/*
+|--------------------------------------------------------------------------
+| BUSCAR EVENTO + JOVENS + CHAMADA
+|--------------------------------------------------------------------------
+*/
 
 router.get("/:id", (req, res) => {
 
@@ -426,7 +409,11 @@ router.post("/", (req, res) => {
         descricao
     } = req.body;
 
-    if (!nome || !tipo || !data) {
+    if (
+        !nome ||
+        !tipo ||
+        !data
+    ) {
 
         return res.status(400).json({
             erro: "Nome, tipo e data são obrigatórios"
@@ -467,6 +454,7 @@ router.post("/", (req, res) => {
         id: resultado.lastInsertRowid,
         mensagem: "Evento criado com sucesso"
     });
+
 });
 
 /*
@@ -486,7 +474,11 @@ router.put("/:id", (req, res) => {
         descricao
     } = req.body;
 
-    if (!nome || !tipo || !data) {
+    if (
+        !nome ||
+        !tipo ||
+        !data
+    ) {
 
         return res.status(400).json({
             erro: "Nome, tipo e data são obrigatórios"
@@ -571,6 +563,7 @@ router.put("/:id", (req, res) => {
     res.json({
         mensagem: "Evento atualizado com sucesso"
     });
+
 });
 
 /*
@@ -603,6 +596,7 @@ router.delete("/:id", (req, res) => {
     res.json({
         mensagem: "Evento excluído com sucesso"
     });
+
 });
 
 /*
@@ -620,7 +614,7 @@ router.post("/:eventoId/chamada", (req, res) => {
 
     /*
     |--------------------------------------------------------------------------
-    | Validar status
+    | VALIDAR STATUS
     |--------------------------------------------------------------------------
     */
 
@@ -640,7 +634,7 @@ router.post("/:eventoId/chamada", (req, res) => {
 
     /*
     |--------------------------------------------------------------------------
-    | Buscar evento
+    | BUSCAR EVENTO
     |--------------------------------------------------------------------------
     */
 
@@ -660,7 +654,7 @@ router.post("/:eventoId/chamada", (req, res) => {
 
     /*
     |--------------------------------------------------------------------------
-    | Verificar jovem
+    | VERIFICAR JOVEM
     |--------------------------------------------------------------------------
     */
 
@@ -696,13 +690,14 @@ router.post("/:eventoId/chamada", (req, res) => {
         status === "justificado"
     ) {
 
-        pontos = PONTUACAO[evento.tipo];
+        pontos =
+            PONTUACAO[evento.tipo];
 
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Verificar se já existe chamada
+    | VERIFICAR SE JÁ EXISTE CHAMADA
     |--------------------------------------------------------------------------
     */
 
@@ -771,92 +766,137 @@ router.post("/:eventoId/chamada", (req, res) => {
     }
 
     res.json({
-        mensagem: "Chamada registrada com sucesso",
+        mensagem:
+            "Chamada registrada com sucesso",
+
         status,
+
         pontos
     });
+
 });
 
 /*
 |--------------------------------------------------------------------------
 | FINALIZAR CHAMADA
 |--------------------------------------------------------------------------
+|
 | Todos os jovens que ainda não possuem registro neste evento
 | serão considerados ausentes.
 |--------------------------------------------------------------------------
 */
 
-router.post("/:eventosId/finalizar-chamada", (req, res) => {
-    const evento = db.prepare(`
-        SELECT * FROM eventos WHERE id = ?`).get(req.params.eventosId);
+router.post(
+    "/:eventosId/finalizar-chamada",
+    (req, res) => {
 
-    if (!evento) {
-
-        return res.status(404).strictContentLength({
-            erro: "Evento não encontrado"
-        });
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Pontos para ausência
-    |--------------------------------------------------------------------------
-    */
-
-    const pontos = 0;
-
-    /*
-    |--------------------------------------------------------------------------
-    | Buscar jovens ainda não marcados
-    |--------------------------------------------------------------------------
-    */
-
-    const jovensNaoMarcados = db.preapare(`
-        SELECT j.id FROM jovens j 
-        LEFT JOIN presencas p
-            ON p.jovem_id = j.id
-            AND p.evento_id - ?
-        WHERE p.id IS NULL
-        `).all(req.params.eventoId);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Inserir ausências
-    |--------------------------------------------------------------------------
-    */
-
-    const inserirAusente = db.prepare(`
-        INSERT INTO presencas (
-            jovem_id,
-            evento_id,
-            status,
-            pontos
-        )
-        VALUES (?,?, 'ausente', ?)
-        `);
-
-    const transacao = db.transaction((lista) => {
-        for (const jovem of lista) {
-
-            inserirAusente.run(
-                jovem.id,
-                req.params.eventosId,
-                pontos
+        const evento =
+            db.prepare(`
+                SELECT *
+                FROM eventos
+                WHERE id = ?
+            `).get(
+                req.params.eventosId
             );
+
+        if (!evento) {
+
+            return res.status(404).json({
+                erro: "Evento não encontrado"
+            });
+
         }
-    });
 
-    transacao(jovensNaoMarcados);
+        /*
+        |--------------------------------------------------------------------------
+        | Pontos para ausência
+        |--------------------------------------------------------------------------
+        */
 
-    res.json({
-        mensagem: "Chamada finalizada com sucesso",
+        const pontos = 0;
 
-        ausentes: jovensNaoMarcados.length
-    });
+        /*
+        |--------------------------------------------------------------------------
+        | Buscar jovens ainda não marcados
+        |--------------------------------------------------------------------------
+        */
 
+        const jovensNaoMarcados =
+            db.prepare(`
+                SELECT
+                    j.id
 
-});
+                FROM jovens j
+
+                LEFT JOIN presencas p
+                    ON p.jovem_id = j.id
+                    AND p.evento_id = ?
+
+                WHERE p.id IS NULL
+            `).all(
+                req.params.eventosId
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Inserir ausências
+        |--------------------------------------------------------------------------
+        */
+
+        const inserirAusente =
+            db.prepare(`
+                INSERT INTO presencas (
+                    jovem_id,
+                    evento_id,
+                    status,
+                    pontos
+                )
+
+                VALUES (
+                    ?,
+                    ?,
+                    'ausente',
+                    ?
+                )
+            `);
+
+        const transacao =
+            db.transaction((lista) => {
+
+                for (
+                    const jovem of lista
+                ) {
+
+                    inserirAusente.run(
+                        jovem.id,
+                        req.params.eventosId,
+                        pontos
+                    );
+
+                }
+
+            });
+
+        transacao(jovensNaoMarcados);
+
+        res.json({
+
+            mensagem:
+                "Chamada finalizada com sucesso",
+
+            ausentes:
+                jovensNaoMarcados.length
+
+        });
+
+    }
+);
+
+/*
+|--------------------------------------------------------------------------
+| DESMARCAR CHAMADA
+|--------------------------------------------------------------------------
+*/
 
 router.delete(
     "/:eventoId/chamada/:jovemId",
@@ -867,25 +907,34 @@ router.delete(
             jovemId
         } = req.params;
 
-        const resultado = db.prepare(`
-        DELETE FROM presencas
+        const resultado =
+            db.prepare(`
+                DELETE FROM presencas
 
-        WHERE evento_id = ?
-        AND jovem_id = ?
-        `).run(
-            eventoId,
-            jovemId
-        );
+                WHERE evento_id = ?
+                AND jovem_id = ?
 
-        if (resultado.changes == 0) {
+            `).run(
+                eventoId,
+                jovemId
+            );
+
+        if (
+            resultado.changes === 0
+        ) {
+
             return res.status(404).json({
                 erro: "Chamada não encontrada"
             });
-        }
-        res.json({
-            mensagem: "Chamada desmarcada com sucesso"
-        });
-    });
 
+        }
+
+        res.json({
+            mensagem:
+                "Chamada desmarcada com sucesso"
+        });
+
+    }
+);
 
 module.exports = router;

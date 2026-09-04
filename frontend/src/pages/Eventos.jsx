@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
     buscarEventos,
@@ -7,7 +7,8 @@ import {
     registrarChamada,
     gerarProgramacao,
     desmarcarChamada,
-    excluirEvento
+    excluirEvento,
+    finalizarChamada
 } from "../api";
 
 
@@ -96,6 +97,12 @@ export default function Eventos() {
     const [mostrarFormulario, setMostrarFormulario] =
         useState(false);
 
+    const [carregando, setCarregando] = useState(false);
+
+    const [finalizando, setFinalizando] = useState(false);
+
+    const [busca, setBusca] = useState("");
+
 
     /*
     |--------------------------------------------------------------------------
@@ -141,6 +148,7 @@ export default function Eventos() {
         const dados = await buscarEvento(id);
 
         setEventoSelecionado(dados);
+        setBusca("");
 
     }
 
@@ -188,7 +196,6 @@ export default function Eventos() {
     */
 
     async function excluir(id) {
-
         const confirmar = window.confirm(
             "Deseja realmente excluir este evento?"
         );
@@ -200,20 +207,24 @@ export default function Eventos() {
         try {
             await excluirEvento(id);
 
+            // Remove imediatamente da tela
+            setEventos(eventosAtuais =>
+                eventosAtuais.filter(evento => evento.id !== id)
+            );
+
+            // Fecha o modal, caso esteja aberto
             setEventoSelecionado(null);
 
-            await carregarEventos();
-        }
-
-        catch (erro) {
+        } catch (erro) {
             console.error(
-                "Erro ao excluir evento: ",
+                "Erro ao excluir evento:",
                 erro
             );
 
             alert(
+                erro.message ||
                 "Não foi possível excluir o evento."
-            )
+            );
         }
     }
 
@@ -229,37 +240,135 @@ export default function Eventos() {
         jovemId,
         status
     ) {
+        setCarregando(true);
 
-        await registrarChamada(
+        try {
+            await registrarChamada(
+                eventoSelecionado.evento.id,
+                jovemId,
+                status
+            );
 
-            eventoSelecionado.evento.id,
+            const dados = await buscarEvento(
+                eventoSelecionado.evento.id
+            );
 
-            jovemId,
-
-            status
-
-        );
-
-        const dados = await buscarEvento(
-            eventoSelecionado.evento.id
-        );
-
-        setEventoSelecionado(dados);
+            setEventoSelecionado(dados);
+        } finally {
+            setCarregando(false);
+        }
 
     }
 
     async function desmarcar(jovemId) {
-        await desmarcarChamada(
-            eventoSelecionado.evento.id,
-            jovemId
-        );
+        setCarregando(true);
 
-        const dados =
-            await buscarEvento(
+        try {
+            await desmarcarChamada(
+                eventoSelecionado.evento.id,
+                jovemId
+            );
+
+            const dados = await buscarEvento(
                 eventoSelecionado.evento.id
             );
 
-        setEventoSelecionado(dados);
+            setEventoSelecionado(dados);
+        } finally {
+            setCarregando(false);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PESQUISA E CONTADORES
+    |--------------------------------------------------------------------------
+    */
+
+    const jovensFiltrados = useMemo(() => {
+        if (!eventoSelecionado) {
+            return [];
+        }
+
+        return eventoSelecionado.jovens.filter(jovem =>
+            jovem.nome
+                .toLowerCase()
+                .includes(busca.toLowerCase())
+        );
+    }, [eventoSelecionado, busca]);
+
+    const estatisticas = useMemo(() => {
+        if (!eventoSelecionado) {
+            return {
+                presentes: 0,
+                justificados: 0,
+                ausentes: 0,
+                naoMarcados: 0
+            };
+        }
+
+        return {
+            presentes: eventoSelecionado.jovens.filter(
+                jovem => jovem.status == "presente"
+            ).length,
+
+            justificados: eventoSelecionado.jovens.filter(
+                jovem => jovem.status == "justificado"
+            ).length,
+
+            ausentes: eventoSelecionado.jovens.filter(
+                jovem => jovem.status == "ausente"
+            ).length,
+
+            naoMarcados: eventoSelecionado.jovens.filter(
+                jovem => !jovem.status
+            ).length
+        };
+    }, [eventoSelecionado]);
+
+    async function finalizar() {
+        if (!eventoSelecionado) {
+            return;
+        }
+
+        const naoMarcados =
+            eventoSelecionado.jovens.filter(
+                jovem => !jovem.status
+            ).length;
+
+        const confirmar = window.confirm(
+            naoMarcados > 0 ?
+                `Existem ${naoMarcados} jovem(ns) sem marcação.\n\n` +
+                `Eles serão regustrados como ausentes.\n\n` +
+                `Deseja finalizar a chamada?`
+                : `Deseja salvar as alterações?`
+        );
+
+        if (!confirmar) {
+            return;
+        }
+
+        setFinalizando(true);
+
+        try {
+            const resposta = await finalizarChamada(
+                eventoSelecionado.evento.id
+            );
+
+            const dados = await buscarEvento(
+                eventoSelecionado.evento.id
+            );
+
+            setEventoSelecionado(dados);
+            setEventoSelecionado(null);
+
+            alert(
+                `Chamada finalizada!\n\n` +
+                `${resposta.ausentes} jovem(ns) registrado(s) como ausente.`
+            );
+        } finally {
+            setFinalizando(false);
+        }
     }
 
     /*
@@ -289,6 +398,19 @@ export default function Eventos() {
             {}
         );
 
+    const hoje = new Date();
+
+
+    const dataHoje = `${hoje.getFullYear()}-${String(
+        hoje.getMonth() + 1
+    ).padStart(2, "0")}-${String(
+        hoje.getDate()
+    ).padStart(2, "0")}`;
+
+    const eventosDeHoje = eventos.filter(
+        evento => evento.data == dataHoje
+    )
+
 
     /*
     |--------------------------------------------------------------------------
@@ -299,6 +421,82 @@ export default function Eventos() {
     return (
 
         <main className="pagina">
+            <section className="eventos-hoje">
+
+                <div className="eventos-hoje-header">
+
+                    <div>
+                        <span className="eyebrow">
+                            HOJE
+                        </span>
+
+                        <h2>
+                            {hoje.toLocaleDateString(
+                                "pt-BR",
+                                {
+                                    weekday: "long",
+                                    day: "2-digit",
+                                    month: "long"
+                                }
+                            )}
+                        </h2>
+                    </div>
+
+                </div>
+
+                {eventosDeHoje.length === 0 ? (
+
+                    <p className="eventos-hoje-vazio">
+                        Não há eventos programados para hoje.
+                    </p>
+
+                ) : (
+
+                    <div className="eventos-hoje-lista">
+
+                        {eventosDeHoje.map(evento => (
+
+                            <div
+                                className="evento-hoje-card"
+                                key={evento.id}
+                            >
+
+                                <div>
+                                    <strong>
+                                        {evento.nome}
+                                    </strong>
+
+                                    <span>
+                                        {evento.horario ||
+                                            "Horário não informado"
+                                        }
+
+                                        {" • "}
+
+                                        {evento.local ||
+                                            "Local não informado"
+                                        }
+                                    </span>
+                                </div>
+
+                                <button
+                                    className="btn-primary"
+                                    onClick={() =>
+                                        abrirChamada(evento.id)
+                                    }
+                                >
+                                    Fazer chamada
+                                </button>
+
+                            </div>
+
+                        ))}
+
+                    </div>
+
+                )}
+
+            </section>
 
             <div className="pagina-header">
 
@@ -751,26 +949,19 @@ export default function Eventos() {
                     <div className="modal chamada">
 
                         <button
-
                             className="fechar"
-
                             onClick={() =>
                                 setEventoSelecionado(null)
                             }
-
                         >
                             ×
                         </button>
 
-
                         <div className="chamada-header">
 
                             <span className="evento-tipo">
-
                                 {eventoSelecionado.evento.tipo}
-
                                 {" — "}
-
                                 {
                                     TIPOS_EVENTO.find(
                                         tipo =>
@@ -778,26 +969,79 @@ export default function Eventos() {
                                             eventoSelecionado.evento.tipo
                                     )?.pontos
                                 }
-
                                 {" pontos"}
-
                             </span>
 
-
                             <h2>
-
-                                {
-                                    eventoSelecionado
-                                        .evento
-                                        .nome
-                                }
-
+                                {eventoSelecionado.evento.nome}
                             </h2>
-
 
                             <p>
                                 Faça a chamada dos jovens
                             </p>
+
+                        </div>
+
+
+                        {/* CONTADORES */}
+
+                        <div className="chamada-contadores">
+
+                            <div className="contador presente">
+                                <strong>
+                                    {estatisticas.presentes}
+                                </strong>
+
+                                <span>
+                                    Presentes
+                                </span>
+                            </div>
+
+                            <div className="contador justificado">
+                                <strong>
+                                    {estatisticas.justificados}
+                                </strong>
+
+                                <span>
+                                    Justificados
+                                </span>
+                            </div>
+
+                            <div className="contador ausente">
+                                <strong>
+                                    {estatisticas.ausentes}
+                                </strong>
+
+                                <span>
+                                    Ausentes
+                                </span>
+                            </div>
+
+                            <div className="contador nao-marcado">
+                                <strong>
+                                    {estatisticas.naoMarcados}
+                                </strong>
+
+                                <span>
+                                    Não marcados
+                                </span>
+                            </div>
+
+                        </div>
+
+
+                        {/* PESQUISA */}
+
+                        <div className="chamada-busca">
+
+                            <input
+                                type="text"
+                                placeholder="Pesquisar jovem..."
+                                value={busca}
+                                onChange={e =>
+                                    setBusca(e.target.value)
+                                }
+                            />
 
                         </div>
 
@@ -807,23 +1051,15 @@ export default function Eventos() {
                         <div className="legenda">
 
                             <span className="presente">
-
                                 ✓ Presente
-
                             </span>
-
 
                             <span className="justificado">
-
                                 J Justificado
-
                             </span>
 
-
                             <span className="ausente">
-
                                 ✕ Ausente
-
                             </span>
 
                         </div>
@@ -833,154 +1069,159 @@ export default function Eventos() {
 
                         <div className="chamada-lista">
 
-                            {
-                                eventoSelecionado.jovens.map(
-                                    jovem => (
+                            {jovensFiltrados.map(jovem => (
 
-                                        <div
-                                            className="chamada-jovem"
-                                            key={jovem.id}
+                                <div
+                                    className="chamada-jovem"
+                                    key={jovem.id}
+                                >
+
+                                    <div className="chamada-jovem-info">
+
+                                        <strong>
+                                            {jovem.nome}
+                                        </strong>
+
+                                        <small>
+
+                                            {jovem.status
+                                                ? jovem.status
+                                                : "Não marcado"
+                                            }
+
+                                            {jovem.status &&
+                                                jovem.pontos !== null &&
+                                                ` • ${jovem.pontos} pts`
+                                            }
+
+                                        </small>
+
+                                    </div>
+
+
+                                    <div className="chamada-botoes">
+
+                                        {/* PRESENTE */}
+
+                                        <button
+                                            type="button"
+                                            className={
+                                                jovem.status === "presente"
+                                                    ? "ativo presente"
+                                                    : "presente"
+                                            }
+                                            disabled={carregando}
+                                            onClick={() =>
+                                                marcar(
+                                                    jovem.id,
+                                                    "presente"
+                                                )
+                                            }
+                                            title="Presente"
                                         >
-
-                                            <div>
-
-                                                <strong>
-                                                    {jovem.nome}
-                                                </strong>
+                                            P
+                                        </button>
 
 
-                                                <small>
+                                        {/* JUSTIFICADO */}
 
-                                                    {jovem.status
-                                                        ? jovem.status
-                                                        : "Não marcado"}
-
-                                                    {jovem.status &&
-                                                        jovem.pontos !== null &&
-                                                        ` • ${jovem.pontos} pts`
-                                                    }
-
-                                                </small>
-
-                                            </div>
-
-
-                                            <div className="chamada-botoes">
-
-                                                {/* PRESENTE */}
-
-                                                <button
-
-                                                    className={
-                                                        jovem.status ===
-                                                            "presente"
-                                                            ? "ativo presente"
-                                                            : "presente"
-                                                    }
-
-                                                    title={
-                                                        `Presente — ${TIPOS_EVENTO.find(
-                                                            tipo =>
-                                                                tipo.nome ===
-                                                                eventoSelecionado
-                                                                    .evento
-                                                                    .tipo
-                                                        )?.pontos
-                                                        } pontos`
-                                                    }
-
-                                                    onClick={() =>
-                                                        marcar(
-                                                            jovem.id,
-                                                            "presente"
-                                                        )
-                                                    }
-
-                                                >
-                                                    P
-
-                                                </button>
+                                        <button
+                                            type="button"
+                                            className={
+                                                jovem.status === "justificado"
+                                                    ? "ativo justificado"
+                                                    : "justificado"
+                                            }
+                                            disabled={carregando}
+                                            onClick={() =>
+                                                marcar(
+                                                    jovem.id,
+                                                    "justificado"
+                                                )
+                                            }
+                                            title="Justificado"
+                                        >
+                                            J
+                                        </button>
 
 
-                                                {/* JUSTIFICADO */}
+                                        {/* AUSENTE */}
 
-                                                <button
-
-                                                    className={
-                                                        jovem.status ===
-                                                            "justificado"
-                                                            ? "ativo justificado"
-                                                            : "justificado"
-                                                    }
-
-                                                    title={
-                                                        `Justificado — ${TIPOS_EVENTO.find(
-                                                            tipo =>
-                                                                tipo.nome ===
-                                                                eventoSelecionado
-                                                                    .evento
-                                                                    .tipo
-                                                        )?.pontos
-                                                        } pontos`
-                                                    }
-
-                                                    onClick={() =>
-                                                        marcar(
-                                                            jovem.id,
-                                                            "justificado"
-                                                        )
-                                                    }
-
-                                                >
-                                                    J
-
-                                                </button>
+                                        <button
+                                            type="button"
+                                            className={
+                                                jovem.status === "ausente"
+                                                    ? "ativo ausente"
+                                                    : "ausente"
+                                            }
+                                            disabled={carregando}
+                                            onClick={() =>
+                                                marcar(
+                                                    jovem.id,
+                                                    "ausente"
+                                                )
+                                            }
+                                            title="Ausente"
+                                        >
+                                            A
+                                        </button>
 
 
-                                                {/* AUSENTE */}
+                                        {/* DESMARCAR */}
 
-                                                <button
+                                        <button
+                                            type="button"
+                                            className="desmarcar"
+                                            disabled={
+                                                carregando ||
+                                                !jovem.status
+                                            }
+                                            title="Desmarcar chamada"
+                                            onClick={() =>
+                                                desmarcar(jovem.id)
+                                            }
+                                        >
+                                            -
+                                        </button>
 
-                                                    className={
-                                                        jovem.status ===
-                                                            "ausente"
-                                                            ? "ativo ausente"
-                                                            : "ausente"
-                                                    }
+                                    </div>
 
-                                                    title="Ausente — 0 pontos"
+                                </div>
 
-                                                    onClick={() =>
-                                                        marcar(
-                                                            jovem.id,
-                                                            "ausente"
-                                                        )
-                                                    }
-
-                                                >
-                                                    A
-
-                                                </button>
-
-                                                <button
-                                                    className="desmarcar"
-                                                    title="Desmarcar Chamada"
-                                                    onClick={() =>
-                                                        desmarcar(jovem.id)
-                                                    }
-                                                >
-                                                    -
-                                                </button>
-
-                                            </div>
-
-                                        </div>
-
-                                    )
-                                )
-                            }
+                            ))}
 
                         </div>
+
+
+                        {/* FINALIZAR */}
+
+                        <section className="chamada-finalizar">
+
+                            <button
+                                className="btn-finalizar-chamada"
+                                disabled={
+                                    finalizando ||
+                                    carregando
+                                }
+                                onClick={finalizar}
+                            >
+                                {finalizando
+                                    ? "Finalizando..."
+                                    : "Finalizar chamada"
+                                }
+                            </button>
+
+                            {estatisticas.naoMarcados > 0 && (
+                                <p>
+                                    Ainda existem{" "}
+                                    <strong>
+                                        {estatisticas.naoMarcados}
+                                    </strong>{" "}
+                                    jovens sem marcação.
+                                </p>
+                            )}
+
+                        </section>
 
                     </div>
 
