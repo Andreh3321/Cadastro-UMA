@@ -1677,3 +1677,219 @@ button {
     width: 100%;
   }
 }
+
+.assistente-chamada {
+  background: var(--cinza);
+  border: 1px solid var(--cinza-2);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+
+.assistente-header h3 {
+  color: var(--azul);
+  font-size: 20px;
+  margin: 6px 0;
+}
+
+.assistente-header p {
+  color: var(--texto-secundario);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.assistente-chamada textarea {
+  width: 100%;
+  min-height: 140px;
+  margin-top: 15px;
+  padding: 14px;
+  border: 1px solid var(--cinza-2);
+  border-radius: 10px;
+  resize: vertical;
+  font-size: 15px;
+  outline: none;
+  background: var(--branco);
+}
+
+.assistente-chamada textarea:focus {
+  border-color: var(--azul);
+}
+
+.btn-assistente {
+  width: 100%;
+  margin-top: 10px;
+  min-height: 48px;
+  border: none;
+  border-radius: 10px;
+  background: var(--azul);
+  color: var(--branco);
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.btn-assistente:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.assistente-resultado {
+  margin-top: 15px;
+  padding: 14px;
+  border-radius: 10px;
+  background: var(--branco);
+}
+
+.assistente-erros {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--cinza-2);
+}
+
+.assistente-erros>div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 8px;
+}
+
+.assistente-erros span {
+  color: var(--vermelho);
+  font-weight: 700;
+}
+
+.assistente-erros small {
+  color: var(--texto-secundario);
+}
+
+/* =========================================================
+   NAVEGAÇÃO POR MÊS
+========================================================= */
+
+.navegacao-meses {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 25px 0 30px;
+}
+
+.btn-mes {
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.mes-atual {
+  min-width: 190px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mes-atual strong {
+  font-size: 22px;
+  text-transform: capitalize;
+}
+
+.mes-atual span {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.btn-hoje {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   AGENDA POR DIA
+========================================================= */
+
+.dia-eventos {
+  margin-bottom: 30px;
+}
+
+.dia-eventos-header {
+  margin-bottom: 12px;
+}
+
+.dia-eventos-header div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.dia-eventos-header span {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: capitalize;
+  opacity: 0.7;
+}
+
+.dia-eventos-header strong {
+  font-size: 19px;
+}
+
+
+/* =========================================================
+   EVENTOS DO DIA
+========================================================= */
+
+.eventos-do-dia {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+
+/* =========================================================
+   QUANDO NÃO EXISTEM EVENTOS
+========================================================= */
+
+.agenda-vazia {
+  text-align: center;
+  padding: 45px 20px;
+  opacity: 0.7;
+}
+
+
+/* =========================================================
+   RESPONSIVO
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .navegacao-meses {
+    gap: 8px;
+  }
+
+  .mes-atual {
+    min-width: 150px;
+  }
+
+  .mes-atual strong {
+    font-size: 19px;
+  }
+
+  .evento-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .evento-acoes {
+    width: 100%;
+  }
+
+  .evento-acoes button {
+    flex: 1;
+  }
+
+}
