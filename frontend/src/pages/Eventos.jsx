@@ -1307,17 +1307,13 @@ export default function Eventos() {
             ========================================================= */}
 
             <section className="eventos-hoje">
-
                 <div className="eventos-hoje-header">
-
                     <div>
-
                         <span className="eyebrow">
                             HOJE
                         </span>
 
                         <h2>
-
                             {hoje.toLocaleDateString(
                                 "pt-BR",
                                 {
@@ -1326,71 +1322,60 @@ export default function Eventos() {
                                     month: "long"
                                 }
                             )}
-
                         </h2>
-
                     </div>
 
+                    {eventosDeHoje.length > 0 && (
+                        <span className="hoje-indicador">
+                            {eventosDeHoje.length}{" "}
+                            {eventosDeHoje.length === 1
+                                ? "evento hoje"
+                                : "eventos hoje"}
+                        </span>
+                    )}
                 </div>
 
-
                 {eventosDeHoje.length === 0 ? (
+                    <div className="eventos-hoje-vazio">
+                        <span className="hoje-icone-vazio">
+                            ✓
+                        </span>
 
-                    <p className="eventos-hoje-vazio">
-                        Não há eventos programados para hoje.
-                    </p>
-
+                        <p>
+                            Não há eventos programados para hoje.
+                        </p>
+                    </div>
                 ) : (
-
                     <div className="eventos-hoje-lista">
-
                         {eventosDeHoje.map(evento => (
-
                             <div
                                 className="evento-hoje-card"
                                 key={evento.id}
                             >
+                                <div className="eventos-hoje-info">
+                                    <div>
+                                        <strong>
+                                            {evento.nome}
+                                        </strong>
 
-                                <div>
-
-                                    <strong>
-                                        {evento.nome}
-                                    </strong>
-
-                                    <span>
-
-                                        {evento.horario ||
-                                            "Horário não informado"}
-
-                                        {" • "}
-
-                                        {evento.local ||
-                                            "Local não informado"}
-
-                                    </span>
-
+                                        <span className="evento-hoje-tipo">
+                                            {evento.tipo}
+                                        </span>
+                                    </div>
                                 </div>
-
 
                                 <button
                                     className="btn-primary"
                                     onClick={() =>
-                                        abrirChamada(
-                                            evento.id
-                                        )
+                                        abrirChamada(evento.id)
                                     }
                                 >
                                     Fazer chamada
                                 </button>
-
                             </div>
-
                         ))}
-
                     </div>
-
                 )}
-
             </section>
 
 
