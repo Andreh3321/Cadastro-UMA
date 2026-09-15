@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1789491970101,
+      "tag": "0000_polite_power_man",
+      "breakpoints": true
+    }
+  ]
+}
