@@ -32,6 +32,8 @@ const upload = multer({
     storage
 });
 
+const { formatarTelefone } = require("../utils/telefone");
+
 // LISTAR JOVENS
 router.get("/", (req, res) => {
 
@@ -100,8 +102,8 @@ router.post("/", upload.single("foto"), (req, res) => {
     `).run(
         nome,
         data_nascimento,
-        telefone,
-        telefone_emergencia,
+        formatarTelefone(telefone),
+        formatarTelefone(telefone_emergencia),
         endereco,
         data_batismo || null,
         instagram,
@@ -160,8 +162,8 @@ router.put("/:id", upload.single("foto"), (req, res) => {
     `).run(
         nome,
         data_nascimento,
-        telefone,
-        telefone_emergencia,
+        formatarTelefone(telefone),
+        formatarTelefone(telefone_emergencia),
         endereco,
         data_batismo || null,
         instagram,
@@ -244,8 +246,8 @@ router.post("/importar", (req, res) => {
                 inserir.run(
                     jovem.nome,
                     jovem.data_nascimento,
-                    jovem.telefone || null,
-                    jovem.telefone_emergencia || null,
+                    formatarTelefone(jovem.telefone),
+                    formatarTelefone(jovem.telefone_emergencia),
                     jovem.endereco || null,
                     jovem.data_batismo || null,
                     jovem.instagram || null,

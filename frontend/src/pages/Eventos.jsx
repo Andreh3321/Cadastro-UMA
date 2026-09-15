@@ -11,7 +11,6 @@ import {
     finalizarChamada
 } from "../api";
 
-
 const TIPOS_EVENTO = [
 
     {

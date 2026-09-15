@@ -1,5 +1,41 @@
 const API = "http://localhost:3000";
 
+/*
+|--------------------------------------------------------------------------
+| RENDERIZAR TELEFONE(S)
+|--------------------------------------------------------------------------
+| Se o campo tiver mais de um telefone separado por "/",
+| mostra cada um em uma linha.
+|--------------------------------------------------------------------------
+*/
+
+function renderizarTelefones(valor) {
+
+    if (!valor) {
+        return "N/A";
+    }
+
+    const numeros = valor
+        .split("/")
+        .map(numero => numero.trim())
+        .filter(Boolean);
+
+    if (numeros.length <= 1) {
+        return valor;
+    }
+
+    return (
+        <>
+            {numeros.map((numero, index) => (
+                <span key={index} className="telefone-linha">
+                    {numero}
+                </span>
+            ))}
+        </>
+    );
+
+}
+
 export default function JovemModal({
     jovem,
     fechar,
@@ -71,18 +107,18 @@ export default function JovemModal({
                             Telefone
                         </strong>
 
-                        <span>
-                            {jovem.telefone || "N/A"}
+                        <span className="telefone-multiplo">
+                            {renderizarTelefones(jovem.telefone)}
                         </span>
                     </div>
 
                     <div>
                         <strong>
-                            Telefone de emergência
+                            Telefone
                         </strong>
 
-                        <span>
-                            {jovem.telefone_emergencia || "N/A"}
+                        <span className="telefone-multiplo">
+                            {renderizarTelefones(jovem.telefone_emergencia)}
                         </span>
                     </div>
 

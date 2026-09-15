@@ -1893,3 +1893,13 @@ button {
   }
 
 }
+
+.telefone-multiplo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.telefone-linha {
+  display: block;
+}

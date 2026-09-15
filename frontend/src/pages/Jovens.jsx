@@ -12,6 +12,8 @@ import {
     importarJovens
 } from "../api";
 
+import { formatarTelefone } from "../utils/telefone";
+
 export default function Jovens() {
 
     const [jovens, setJovens] = useState([]);
@@ -426,6 +428,9 @@ export default function Jovens() {
                                     defaultValue={
                                         editando?.telefone || ""
                                     }
+                                    onChange={(e) => {
+                                        e.target.value = formatarTelefone(e.target.value);
+                                    }}
                                 />
                             </label>
 
@@ -436,6 +441,9 @@ export default function Jovens() {
                                     defaultValue={
                                         editando?.telefone_emergencia || ""
                                     }
+                                    onChange={(e) => {
+                                        e.target.value = formatarTelefone(e.target.value);
+                                    }}
                                 />
                             </label>
 
