@@ -85,15 +85,20 @@ button {
   opacity: 1;
 }
 
-.hero {
-  min-height: 560px;
-  background: linear-gradient(120deg, #071a35fa, #071a35d1);
+.home {
   display: flex;
-  align-items: center;
-  padding: 70px 10%;
+  flex-direction: column;
+}
+
+.hero {
+  min-height: 620px;
+  background: linear-gradient(120deg, #071a35fa, #071a35d1);
+  padding: 70px 8%;
   color: var(--branco);
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
 }
 
 .hero::after {
@@ -108,10 +113,29 @@ button {
   bottom: -200px;
 }
 
-.hero-content {
-  max-width: 760px;
+.hero-inner {
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 50px;
   position: relative;
   z-index: 1;
+}
+
+.hero-content {
+  max-width: 620px;
+  flex: 1;
+}
+
+.hero-sidebar {
+  width: 340px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 
 .hero-label {
@@ -141,13 +165,6 @@ button {
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-
-.home-info {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 25px;
-  padding: 60px 10%;
 }
 
 .info-box {
@@ -987,11 +1004,6 @@ button {
 
   .hero {
     padding: 60px 25px;
-  }
-
-  .home-info {
-    grid-template-columns: 1fr;
-    padding: 35px 25px;
   }
 
   .pagina {
@@ -1908,21 +1920,27 @@ button {
    HOME — EVENTOS DE HOJE
 ========================================================= */
 
+/* card "Hoje" flutuando sobre o hero */
+/* =========================================================
+   HOME — EVENTOS DE HOJE E INFO (dentro do hero)
+========================================================= */
+
 .home-eventos-hoje {
-  margin-top: 36px;
-  padding-top: 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.18);
-  max-width: 720px;
+  padding: 22px 24px;
+  background: var(--branco);
+  border-radius: 16px;
+  border-left: 5px solid var(--vermelho);
+  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.25);
 }
 
 .home-eventos-header {
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .home-hoje-label {
   display: block;
   margin-bottom: 6px;
-  color: #ff6b76;
+  color: var(--vermelho);
   font-size: 11px;
   font-weight: 900;
   letter-spacing: 2.5px;
@@ -1930,10 +1948,9 @@ button {
 
 .home-eventos-header h2 {
   margin: 0;
-  color: var(--branco);
-  font-size: 25px;
-  font-weight: 700;
-  line-height: 1.2;
+  color: var(--azul);
+  font-size: 19px;
+  text-transform: capitalize;
 }
 
 .home-eventos-lista {
@@ -1945,70 +1962,48 @@ button {
 .home-evento-card {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-
-  padding: 14px 17px;
-
-  background: rgba(255, 255, 255, 0.96);
-  border-left: 4px solid var(--vermelho);
-  border-radius: 10px;
-
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.home-evento-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+  gap: 3px;
+  padding: 12px 14px;
+  background: var(--cinza);
+  border-radius: 9px;
 }
 
 .home-evento-card strong {
   color: var(--azul);
-  font-size: 15px;
-  font-weight: 800;
-  line-height: 1.3;
+  font-size: 14px;
 }
 
 .home-evento-card span {
   color: var(--texto-secundario);
-  font-size: 12px;
-  line-height: 1.3;
+  font-size: 11px;
 }
 
 .home-eventos-vazio {
   margin: 0;
-  color: rgba(255, 255, 255, 0.65);
-  font-size: 14px;
+  color: var(--texto-secundario);
+  font-size: 13px;
 }
 
+.hero-sidebar .info-box {
+  border-top: 4px solid var(--vermelho);
+  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.25);
+}
 
-/* =========================================================
-   HOME — RESPONSIVO
-========================================================= */
+@media (max-width: 900px) {
+  .hero-inner {
+    flex-direction: column;
+  }
+
+  .hero-sidebar {
+    width: 100%;
+  }
+}
 
 @media (max-width: 700px) {
-
   .hero {
     min-height: auto;
     padding: 50px 25px;
   }
-
-  .home-eventos-hoje {
-    margin-top: 30px;
-    padding-top: 20px;
-  }
-
-  .home-eventos-header h2 {
-    font-size: 21px;
-  }
-
-  .home-evento-card {
-    padding: 13px 15px;
-  }
-
 }
 
 /* =========================================================
@@ -2016,161 +2011,161 @@ button {
 ========================================================= */
 
 .eventos-hoje {
-    background: var(--azul);
-    color: var(--branco);
-    border-radius: 18px;
-    padding: 26px;
-    margin-bottom: 35px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 12px 30px #071a3526;
+  background: var(--azul);
+  color: var(--branco);
+  border-radius: 18px;
+  padding: 26px;
+  margin-bottom: 35px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 30px #071a3526;
 }
 
 .eventos-hoje::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 5px;
-    height: 100%;
-    background: var(--vermelho);
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background: var(--vermelho);
 }
 
 .eventos-hoje-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
 }
 
 .eventos-hoje .eyebrow {
-    color: #ff6b76;
-    font-weight: 800;
+  color: #ff6b76;
+  font-weight: 800;
 }
 
 .eventos-hoje h2 {
-    margin-top: 6px;
-    font-size: 26px;
-    text-transform: capitalize;
+  margin-top: 6px;
+  font-size: 26px;
+  text-transform: capitalize;
 }
 
 .hoje-indicador {
-    background: #ffffff1a;
-    border: 1px solid #ffffff26;
-    border-radius: 999px;
-    padding: 8px 12px;
-    font-size: 12px;
-    font-weight: 800;
-    white-space: nowrap;
+  background: #ffffff1a;
+  border: 1px solid #ffffff26;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .eventos-hoje-lista {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .evento-hoje-card {
-    background: var(--branco);
-    color: var(--texto);
-    border-radius: 12px;
-    padding: 16px 18px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    transition: transform 0.2s, box-shadow 0.2s;
+  background: var(--branco);
+  color: var(--texto);
+  border-radius: 12px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .evento-hoje-card:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 18px #00000012;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px #00000012;
 }
 
 .evento-hoje-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .evento-hoje-ponto {
-    color: var(--vermelho);
-    font-size: 32px;
-    line-height: 1;
+  color: var(--vermelho);
+  font-size: 32px;
+  line-height: 1;
 }
 
 .evento-hoje-info div {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .evento-hoje-info strong {
-    font-size: 17px;
+  font-size: 17px;
 }
 
 .evento-hoje-tipo {
-    color: var(--texto-secundario);
-    font-size: 13px;
+  color: var(--texto-secundario);
+  font-size: 13px;
 }
 
 .eventos-hoje-vazio {
-    min-height: 75px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 5px 0;
+  min-height: 75px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 0;
 }
 
 .eventos-hoje-vazio p {
-    margin: 0;
-    opacity: 0.85;
+  margin: 0;
+  opacity: 0.85;
 }
 
 .hoje-icone-vazio {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #ffffff1a;
-    border: 1px solid #ffffff26;
-    font-weight: 900;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff1a;
+  border: 1px solid #ffffff26;
+  font-weight: 900;
 }
 
 .eventos-hoje.sem-eventos {
-    opacity: 0.92;
+  opacity: 0.92;
 }
 
 @media (max-width: 700px) {
 
-    .eventos-hoje {
-        padding: 20px;
-    }
+  .eventos-hoje {
+    padding: 20px;
+  }
 
-    .eventos-hoje-header {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 10px;
-    }
+  .eventos-hoje-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
 
-    .eventos-hoje h2 {
-        font-size: 22px;
-    }
+  .eventos-hoje h2 {
+    font-size: 22px;
+  }
 
-    .hoje-indicador {
-        font-size: 11px;
-    }
+  .hoje-indicador {
+    font-size: 11px;
+  }
 
-    .evento-hoje-card {
-        align-items: stretch;
-        flex-direction: column;
-    }
+  .evento-hoje-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
 
-    .evento-hoje-card .btn-primary {
-        width: 100%;
-    }
+  .evento-hoje-card .btn-primary {
+    width: 100%;
+  }
 
 }
