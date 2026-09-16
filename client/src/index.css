@@ -177,6 +177,7 @@ button {
 
 .info-box h3 {
   margin-bottom: 10px;
+  color: var(--azul);
 }
 
 .info-box p {
@@ -989,86 +990,6 @@ button {
   opacity: 1;
 }
 
-@media (max-width: 700px) {
-  .navbar {
-    padding: 0 20px;
-  }
-
-  .nav-links {
-    gap: 12px;
-  }
-
-  .nav-links a {
-    font-size: 12px;
-  }
-
-  .hero {
-    padding: 60px 25px;
-  }
-
-  .pagina {
-    padding: 35px 20px;
-  }
-
-  .pagina-header {
-    align-items: center;
-    gap: 20px;
-    flex-direction: column;
-  }
-
-  .pagina-header h1 {
-    font-size: 35px;
-  }
-
-  .podio {
-    grid-template-columns: 1fr;
-    gap: 15px;
-  }
-
-  .podio-card {
-    min-height: 230px;
-  }
-
-  .dados {
-    grid-template-columns: 1fr;
-  }
-
-  .evento-card {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .evento-card .btn-primary {
-    width: 100%;
-  }
-
-  .ranking-stats {
-    display: none;
-  }
-
-  .chamada-jovem {
-    gap: 10px;
-  }
-
-  .header-acoes {
-    width: 100%;
-    flex-direction: column;
-  }
-
-  .header-acoes button,
-  .header-acoes label {
-    width: 100%;
-    text-align: center;
-  }
-
-  .modal-acoes-importacao {
-    flex-direction: column;
-  }
-
-  .modal-acoes-importacao button {
-    width: 100%;
-  }
-}
 
 .card-importacao {
   background: var(--branco);
@@ -1162,21 +1083,6 @@ button {
   margin-bottom: 20px;
 }
 
-@media (max-width: 768px) {
-
-  .card-importacao {
-    padding: 18px;
-    border-radius: 12px;
-  }
-
-  .card-importacao h2 {
-    font-size: 18px;
-  }
-
-  .card-importacao table {
-    min-width: 700px;
-  }
-}
 
 /* =========================================================
    DAQUI PRA BAIXO: CSS NOVO DA CHAMADA
@@ -1445,26 +1351,6 @@ button {
    CELULAR
 ========================================================= */
 
-@media (max-width: 700px) {
-
-  .chamada-mobile {
-    padding: 20px 14px 30px;
-  }
-
-  .chamada-contadores {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .chamada-jovem {
-    padding: 10px;
-  }
-
-  .chamada-botoes button {
-    width: 44px;
-    height: 44px;
-  }
-
-}
 
 /* =========================================================
    AGENDA DE EVENTOS
@@ -1513,25 +1399,6 @@ button {
   gap: 12px;
 }
 
-@media (max-width: 700px) {
-
-  .eventos-agenda {
-    gap: 24px;
-  }
-
-  .dia-eventos-header {
-    padding-bottom: 6px;
-  }
-
-  .dia-eventos-header strong {
-    font-size: 16px;
-  }
-
-  .evento-card {
-    width: 100%;
-    box-sizing: border-box;
-  }
-}
 
 /* =========================================================
    BOTÃO DESMARCAR CHAMADA
@@ -1561,15 +1428,6 @@ button {
   transform: scale(0.94);
 }
 
-@media (max-width: 700px) {
-
-  .chamada-botoes .desmarcar {
-    width: 44px;
-    height: 44px;
-    font-size: 22px;
-  }
-
-}
 
 /* =========================================================
    AÇÕES DO EVENTO
@@ -1601,20 +1459,6 @@ button {
   color: var(--branco);
 }
 
-@media (max-width: 700px) {
-
-  .evento-acoes {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    margin-top: 10px;
-  }
-
-  .evento-acoes button {
-    width: 100%;
-  }
-
-}
 
 .eventos-hoje {
   background: var(--azul);
@@ -1674,21 +1518,6 @@ button {
   opacity: 0.8;
 }
 
-@media (max-width: 700px) {
-
-  .eventos-hoje {
-    padding: 20px;
-  }
-
-  .evento-hoje-card {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .evento-hoje-card .btn-primary {
-    width: 100%;
-  }
-}
 
 .assistente-chamada {
   background: var(--cinza);
@@ -1877,34 +1706,6 @@ button {
    RESPONSIVO
 ========================================================= */
 
-@media (max-width: 700px) {
-
-  .navegacao-meses {
-    gap: 8px;
-  }
-
-  .mes-atual {
-    min-width: 150px;
-  }
-
-  .mes-atual strong {
-    font-size: 19px;
-  }
-
-  .evento-card {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .evento-acoes {
-    width: 100%;
-  }
-
-  .evento-acoes button {
-    flex: 1;
-  }
-
-}
 
 .telefone-multiplo {
   display: flex;
@@ -1989,22 +1790,6 @@ button {
   box-shadow: 0 16px 35px rgba(0, 0, 0, 0.25);
 }
 
-@media (max-width: 900px) {
-  .hero-inner {
-    flex-direction: column;
-  }
-
-  .hero-sidebar {
-    width: 100%;
-  }
-}
-
-@media (max-width: 700px) {
-  .hero {
-    min-height: auto;
-    padding: 50px 25px;
-  }
-}
 
 /* =========================================================
    DESTAQUE - HOJE
@@ -2139,24 +1924,499 @@ button {
   opacity: 0.92;
 }
 
-@media (max-width: 700px) {
 
-  .eventos-hoje {
+
+/* Navegação mobile: mantém todos os destinos acessíveis sem rolagem horizontal. */
+
+/* =========================================================
+   RESPONSIVIDADE
+   ========================================================= */
+
+/* Base para evitar overflow horizontal em qualquer tela */
+html,
+body,
+#root {
+  width: 100%;
+  min-width: 0;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+input,
+textarea,
+select,
+button {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.hero-inner,
+.hero-content,
+.hero-sidebar,
+.pagina,
+.pagina-header,
+.evento-card,
+.evento-info,
+.chamada-jovem,
+.chamada-jovem-info,
+.ranking-row,
+.ranking-nome,
+.modal,
+.card-importacao {
+  min-width: 0;
+}
+
+/* =========================================================
+   DESKTOP GRANDE
+   Acima de 1700px mantém o visual principal.
+   ========================================================= */
+
+@media (min-width: 1701px) {
+  .hero {
+    min-height: 620px;
+  }
+
+  .hero-inner {
+    max-width: 1300px;
+    gap: 50px;
+  }
+
+  .hero-content {
+    max-width: 620px;
+  }
+
+  .hero-sidebar {
+    width: 340px;
+  }
+}
+
+/* =========================================================
+   NOTEBOOK
+   1101px até 1700px
+   Ajuste pensado para o Galaxy Book 2 e notebooks semelhantes.
+   ========================================================= */
+
+@media (min-width: 1101px) and (max-width: 1700px) {
+  .navbar {
+    height: 72px;
+    padding-left: 5%;
+    padding-right: 5%;
+  }
+
+  .nav-links {
+    gap: 24px;
+  }
+
+  .nav-links a {
+    font-size: 14px;
+  }
+
+  .hero {
+    min-height: 540px;
+    padding: 55px 5%;
+  }
+
+  .hero-inner {
+    max-width: 1180px;
+    gap: 38px;
+    align-items: center;
+  }
+
+  .hero-content {
+    max-width: none;
+    flex: 1 1 auto;
+  }
+
+  .hero-sidebar {
+    width: 300px;
+    flex: 0 0 300px;
+  }
+
+  .hero h1 {
+    font-size: clamp(52px, 5.2vw, 76px);
+    line-height: 0.96;
+    margin: 16px 0;
+  }
+
+  .hero p {
+    font-size: 18px;
+    line-height: 1.5;
+  }
+
+  .versiculo {
+    margin-top: 28px;
+    padding-left: 16px;
+  }
+
+  .versiculo strong {
+    font-size: 15px;
+    line-height: 1.35;
+  }
+
+  .info-box {
+    padding: 24px;
+  }
+
+  .home-eventos-hoje {
     padding: 20px;
+  }
+
+  .home-eventos-header h2 {
+    font-size: 18px;
+  }
+
+  .pagina {
+    padding-left: 30px;
+    padding-right: 30px;
+  }
+
+  .jovens-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+
+  .podio {
+    gap: 16px;
+  }
+}
+
+/* =========================================================
+   TABLET / NOTEBOOK PEQUENO
+   769px até 1100px
+   ========================================================= */
+
+@media (min-width: 769px) and (max-width: 1100px) {
+  .navbar {
+    min-height: 76px;
+    height: auto;
+    padding: 14px 30px;
+    gap: 20px;
+  }
+
+  .nav-links {
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+  }
+
+  .nav-links a {
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .hero {
+    min-height: auto;
+    padding: 55px 35px 60px;
+  }
+
+  .hero-inner {
+    flex-direction: column;
+    align-items: stretch;
+    max-width: 850px;
+    gap: 35px;
+  }
+
+  .hero-content {
+    max-width: 850px;
+  }
+
+  .hero-sidebar {
+    width: 100%;
+    max-width: 850px;
+    margin: 0 auto;
+  }
+
+  .hero h1 {
+    font-size: clamp(52px, 8vw, 72px);
+  }
+
+  .hero p {
+    font-size: 18px;
+  }
+
+  .pagina {
+    padding: 45px 30px;
+  }
+
+  .pagina-header {
+    gap: 20px;
+  }
+
+  .jovens-grid {
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  }
+
+  .podio {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .evento-card {
+    gap: 18px;
+  }
+}
+
+/* =========================================================
+   MOBILE
+   Até 768px
+   ========================================================= */
+
+@media (max-width: 768px) {
+  .navbar {
+    min-height: 76px;
+    height: auto;
+    padding: 14px 20px;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .logo {
+    flex: 0 0 auto;
+    padding-top: 2px;
+  }
+
+  .logo span {
+    font-size: 20px;
+  }
+
+  .logo small {
+    font-size: 8px;
+    letter-spacing: 2.5px;
+  }
+
+  .nav-links {
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px 12px;
+  }
+
+  .nav-links a {
+    font-size: 11px;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .hero {
+    min-height: auto;
+    padding: 48px 24px 55px;
+  }
+
+  .hero-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 28px;
+  }
+
+  .hero-content,
+  .hero-sidebar {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .hero h1 {
+    font-size: clamp(44px, 11vw, 64px);
+    line-height: 0.97;
+    margin: 16px 0 18px;
+  }
+
+  .hero p {
+    font-size: 17px;
+    line-height: 1.5;
+  }
+
+  .hero-label {
+    font-size: 11px;
+    letter-spacing: 2.5px;
+  }
+
+  .versiculo {
+    margin-top: 24px;
+    padding-left: 14px;
+  }
+
+  .versiculo strong {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .versiculo span {
+    font-size: 12px;
+  }
+
+  .hero-sidebar {
+    gap: 14px;
+  }
+
+  .home-eventos-hoje,
+  .hero-sidebar .info-box {
+    padding: 20px;
+  }
+
+  .pagina {
+    width: 100%;
+    padding: 35px 20px;
+  }
+
+  .pagina-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+    margin-bottom: 25px;
+  }
+
+  .pagina-header h1 {
+    font-size: 35px;
+  }
+
+  .header-acoes {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .header-acoes button,
+  .header-acoes label {
+    width: 100%;
+    text-align: center;
+  }
+
+  .jovens-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .jovem-foto {
+    height: 190px;
+  }
+
+  .jovem-info {
+    padding: 14px;
+  }
+
+  .dados {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-overlay {
+    padding: 12px;
+  }
+
+  .modal {
+    max-height: 94vh;
+    padding: 22px;
+    border-radius: 14px;
+  }
+
+  .modal-header {
+    gap: 14px;
+    padding-right: 25px;
+  }
+
+  .modal-header img,
+  .modal-sem-foto {
+    width: 70px;
+    height: 70px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions button {
+    width: 100%;
+  }
+
+  .evento-card {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .evento-data {
+    width: 100%;
+  }
+
+  .evento-info {
+    width: 100%;
+  }
+
+  .evento-acoes {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .evento-acoes button {
+    width: 100%;
+  }
+
+  .podio {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .podio-card {
+    min-height: 220px;
+  }
+
+  .ranking-stats {
+    display: none;
+  }
+
+  .ranking-row {
+    gap: 10px;
+  }
+
+  .ranking-nome {
+    gap: 9px;
+  }
+
+  .chamada-jovem {
+    gap: 10px;
+  }
+
+  .chamada-botoes {
+    gap: 5px;
+  }
+
+  .chamada-botoes button {
+    width: 42px;
+    height: 42px;
+  }
+
+  .chamada-contadores {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .navegacao-meses {
+    gap: 8px;
+  }
+
+  .mes-atual {
+    min-width: 150px;
+  }
+
+  .mes-atual strong {
+    font-size: 19px;
   }
 
   .eventos-hoje-header {
     align-items: flex-start;
     flex-direction: column;
     gap: 10px;
-  }
-
-  .eventos-hoje h2 {
-    font-size: 22px;
-  }
-
-  .hoje-indicador {
-    font-size: 11px;
   }
 
   .evento-hoje-card {
@@ -2168,40 +2428,419 @@ button {
     width: 100%;
   }
 
+  .modal-acoes-importacao {
+    flex-direction: column;
+  }
+
+  .modal-acoes-importacao button {
+    width: 100%;
+  }
+
+  .card-importacao {
+    padding: 18px;
+    border-radius: 12px;
+  }
+
+  .card-importacao table {
+    min-width: 700px;
+  }
+
+  .tabela-importacao-wrapper,
+  .tabela-preview-wrapper {
+    overflow-x: auto;
+  }
 }
 
+/* =========================================================
+   CELULARES
+   Até 480px
+   ========================================================= */
 
-/* Navegação mobile: mantém todos os destinos acessíveis sem rolagem horizontal. */
-@media (max-width: 700px) {
-  body {
-    overflow-x: hidden;
-  }
-
+@media (max-width: 480px) {
   .navbar {
-    min-height: 76px;
-    height: auto;
-    padding: 14px 20px;
-    align-items: flex-start;
-    gap: 16px;
+    padding: 12px 15px;
+    gap: 10px;
   }
 
-  .logo {
-    flex: 0 0 auto;
-    padding-top: 3px;
+  .logo span {
+    font-size: 17px;
+  }
+
+  .logo small {
+    font-size: 7px;
+    letter-spacing: 2px;
   }
 
   .nav-links {
-    flex: 1 1 auto;
-    min-width: 0;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 8px 13px;
-    flex-wrap: wrap;
+    gap: 6px 9px;
   }
 
   .nav-links a {
-    font-size: 12px;
-    line-height: 1.2;
-    white-space: nowrap;
+    font-size: 10px;
   }
+
+  .hero {
+    padding: 40px 18px 45px;
+  }
+
+  .hero h1 {
+    font-size: 43px;
+  }
+
+  .hero p {
+    font-size: 16px;
+  }
+
+  .hero-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+  }
+
+  .versiculo {
+    padding-left: 12px;
+  }
+
+  .versiculo strong {
+    font-size: 13px;
+  }
+
+  .home-eventos-hoje,
+  .hero-sidebar .info-box {
+    padding: 17px;
+  }
+
+  .pagina {
+    padding: 30px 15px;
+  }
+
+  .pagina-header h1 {
+    font-size: 30px;
+  }
+
+  .jovens-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .jovem-foto {
+    height: 240px;
+  }
+
+  .modal {
+    padding: 18px;
+  }
+
+  .modal-header {
+    align-items: flex-start;
+  }
+
+  .modal-header img,
+  .modal-sem-foto {
+    width: 60px;
+    height: 60px;
+  }
+
+  .evento-acoes {
+    grid-template-columns: 1fr;
+  }
+
+  .chamada-jovem {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .chamada-botoes {
+    justify-content: flex-end;
+  }
+
+  .chamada-contadores {
+    gap: 8px;
+  }
+
+  .navegacao-meses {
+    flex-wrap: wrap;
+  }
+
+  .mes-atual {
+    order: -1;
+    width: 100%;
+  }
+
+  .evento-hoje-card {
+    padding: 13px;
+  }
+
+  .banner-instalar {
+    width: calc(100% - 24px);
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .banner-instalar-texto strong {
+    font-size: 13px;
+  }
+
+  .banner-instalar-texto span {
+    font-size: 11px;
+  }
+
+  .btn-instalar {
+    padding: 9px 12px;
+    font-size: 12px;
+  }
+}
+
+/* =========================================================
+   CELULARES MUITO PEQUENOS
+   Até 360px
+   ========================================================= */
+
+@media (max-width: 360px) {
+  .navbar {
+    padding: 10px 12px;
+  }
+
+  .logo span {
+    font-size: 15px;
+  }
+
+  .nav-links {
+    gap: 5px 7px;
+  }
+
+  .nav-links a {
+    font-size: 9px;
+  }
+
+  .hero {
+    padding: 35px 15px 40px;
+  }
+
+  .hero h1 {
+    font-size: 39px;
+  }
+
+  .hero p {
+    font-size: 15px;
+  }
+
+  .pagina {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .chamada-botoes button {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* =========================================================
+   CORREÇÃO DEFINITIVA DA HOME
+   ========================================================= */
+
+.hero {
+    width: 100%;
+    min-height: calc(100vh - 72px);
+    box-sizing: border-box;
+    padding: 70px 6vw;
+    overflow: hidden;
+}
+
+.hero-inner {
+    width: 100%;
+    max-width: 1450px;
+    min-width: 0;
+    margin: 0 auto;
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    align-items: center;
+
+    gap: clamp(35px, 5vw, 90px);
+}
+
+.hero-content {
+    width: 100%;
+    min-width: 0;
+    max-width: 700px;
+}
+
+.hero-sidebar {
+    width: 100%;
+    min-width: 0;
+    max-width: 320px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.hero h1 {
+    font-size: clamp(52px, 5.5vw, 82px);
+    line-height: 0.96;
+    margin: 18px 0 25px;
+    word-break: normal;
+    overflow-wrap: normal;
+}
+
+.hero p {
+    font-size: clamp(17px, 1.4vw, 20px);
+    line-height: 1.5;
+}
+
+.versiculo {
+    width: 100%;
+    max-width: 620px;
+    box-sizing: border-box;
+    margin-top: 30px;
+    padding-left: 18px;
+}
+
+/* =========================================================
+   GALAXY BOOK / NOTEBOOK
+   ========================================================= */
+
+@media (max-width: 2100px) {
+
+    .hero {
+        padding-left: 5vw;
+        padding-right: 5vw;
+    }
+
+    .hero-inner {
+        max-width: 1250px;
+        grid-template-columns: minmax(0, 1fr) 300px;
+        gap: 45px;
+    }
+
+    .hero-content {
+        max-width: 650px;
+    }
+
+    .hero h1 {
+        font-size: clamp(50px, 5vw, 72px);
+    }
+
+    .hero-sidebar {
+        max-width: 300px;
+    }
+}
+
+/* =========================================================
+   NOTEBOOK MENOR
+   ========================================================= */
+
+@media (max-width: 1350px) {
+
+    .hero {
+        padding: 55px 35px;
+    }
+
+    .hero-inner {
+        grid-template-columns: minmax(0, 1fr) 280px;
+        gap: 30px;
+    }
+
+    .hero-content {
+        max-width: 600px;
+    }
+
+    .hero h1 {
+        font-size: clamp(46px, 5.5vw, 65px);
+    }
+
+    .hero-sidebar {
+        max-width: 280px;
+    }
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .hero {
+        min-height: auto;
+        padding: 55px 30px;
+    }
+
+    .hero-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 35px;
+    }
+
+    .hero-content {
+        max-width: 750px;
+    }
+
+    .hero-sidebar {
+        width: 100%;
+        max-width: 750px;
+        margin: 0 auto;
+    }
+
+    .hero h1 {
+        font-size: clamp(48px, 9vw, 70px);
+    }
+}
+
+/* =========================================================
+   CELULAR
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .hero {
+        padding: 40px 20px 50px;
+    }
+
+    .hero-inner {
+        gap: 28px;
+    }
+
+    .hero h1 {
+        font-size: clamp(42px, 13vw, 58px);
+        line-height: 0.98;
+        margin: 15px 0 20px;
+    }
+
+    .hero p {
+        font-size: 17px;
+    }
+
+    .versiculo {
+        margin-top: 25px;
+        padding-left: 14px;
+    }
+
+    .versiculo strong {
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .hero-sidebar {
+        gap: 14px;
+    }
+}
+
+/* =========================================================
+   CELULAR PEQUENO
+   ========================================================= */
+
+@media (max-width: 400px) {
+
+    .hero {
+        padding: 35px 16px 45px;
+    }
+
+    .hero h1 {
+        font-size: 42px;
+    }
+
+    .hero p {
+        font-size: 16px;
+    }
 }
