@@ -10,6 +10,7 @@ import {
     excluirEvento,
     finalizarChamada
 } from "../api";
+import { useAuth } from "../contexts/AuthContext";
 
 const TIPOS_EVENTO = [
 
@@ -87,6 +88,9 @@ const TIPOS_EVENTO = [
 
 
 export default function Eventos() {
+
+    const { user } = useAuth();
+    const podeFazerChamada = ["admin", "secretario", "lider"].includes(user?.role);
 
     const [eventos, setEventos] = useState([]);
 
@@ -330,7 +334,9 @@ export default function Eventos() {
 
             local: e.target.local.value,
 
-            descricao: e.target.descricao.value
+            descricao: e.target.descricao.value,
+
+            pontos: e.target.pontos.value
 
         };
 
@@ -1629,13 +1635,7 @@ export default function Eventos() {
 
                                                             {" — "}
 
-                                                            {
-                                                                TIPOS_EVENTO.find(
-                                                                    tipo =>
-                                                                        tipo.nome ===
-                                                                        evento.tipo
-                                                                )?.pontos || 0
-                                                            }
+                                                            {evento.pontos ?? TIPOS_EVENTO.find(tipo => tipo.nome === evento.tipo)?.pontos ?? 0}
 
                                                             {" pontos"}
 
@@ -1646,16 +1646,12 @@ export default function Eventos() {
 
                                                     <div className="evento-acoes">
 
-                                                        <button
+                                                        {podeFazerChamada && <button
                                                             className="btn-primary"
-                                                            onClick={() =>
-                                                                abrirChamada(
-                                                                    evento.id
-                                                                )
-                                                            }
+                                                            onClick={() => abrirChamada(evento.id)}
                                                         >
                                                             Fazer chamada
-                                                        </button>
+                                                        </button>}
 
 
                                                         <button
@@ -1716,8 +1712,7 @@ export default function Eventos() {
 
 
                         <p className="subtitulo-modal">
-                            Cadastre o evento e selecione
-                            a pontuação correspondente.
+                            Cadastre o evento e informe quantos pontos ele vale.
                         </p>
 
 
@@ -1760,7 +1755,7 @@ export default function Eventos() {
                                     </option>
 
 
-                                    {TIPOS_EVENTO.map(
+                                    {[...TIPOS_EVENTO, { nome: "Outro", pontos: "manual" }].map(
                                         tipo => (
 
                                             <option
@@ -1776,7 +1771,7 @@ export default function Eventos() {
 
                                                 {" — "}
 
-                                                {tipo.pontos}
+                                                {tipo.pontos === "manual" ? "pontuação manual" : tipo.pontos}
 
                                                 {" pontos"}
 
@@ -1818,6 +1813,21 @@ export default function Eventos() {
 
                             </label>
 
+
+                            <label>
+
+                                Pontos do evento
+
+                                <input
+                                    name="pontos"
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    required
+                                    placeholder="Ex: 250"
+                                />
+
+                            </label>
 
                             {/* LOCAL */}
 
@@ -1891,13 +1901,7 @@ export default function Eventos() {
 
                                 {" — "}
 
-                                {
-                                    TIPOS_EVENTO.find(
-                                        tipo =>
-                                            tipo.nome ===
-                                            eventoSelecionado.evento.tipo
-                                    )?.pontos
-                                }
+                                {eventoSelecionado.evento.pontos ?? TIPOS_EVENTO.find(tipo => tipo.nome === eventoSelecionado.evento.tipo)?.pontos ?? 0}
 
                                 {" pontos"}
 

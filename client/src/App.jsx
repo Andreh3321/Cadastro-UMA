@@ -8,7 +8,6 @@ import Login from "./pages/Login";
 import Jovens from "./pages/Jovens";
 import Ranking from "./pages/Ranking";
 import Eventos from "./pages/Eventos";
-import Chamada from "./pages/Chamada";
 import ImportarChamadas from "./pages/ImportarChamadas";
 
 const FULL_ACCESS = ["admin", "secretario", "lider", "eventos"];
@@ -29,7 +28,6 @@ function AppRoutes() {
                 </Route>
                 <Route element={<ProtectedRoute roles={CALL_ACCESS} />}>
                     <Route path="/ranking" element={<Ranking />} />
-                    <Route path="/chamada" element={<Chamada />} />
                 </Route>
             </Routes>
         </BrowserRouter>

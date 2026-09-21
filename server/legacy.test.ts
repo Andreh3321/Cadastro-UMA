@@ -13,5 +13,7 @@ describe("UMADEB legacy rules", () => {
     expect(pontosDoStatus("EBD", "presente")).toBe(500);
     expect(pontosDoStatus("EBD", "justificado")).toBe(500);
     expect(pontosDoStatus("EBD", "ausente")).toBe(0);
+    expect(pontosDoStatus({ tipo: "Outro", pontos: 275 }, "presente")).toBe(275);
+    expect(pontosDoStatus({ tipo: "Outro", pontos: 275 }, "justificado")).toBe(275);
   });
 });

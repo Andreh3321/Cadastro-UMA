@@ -85,10 +85,16 @@ export async function ensureLegacySchema() {
       horario VARCHAR(32) NULL,
       local VARCHAR(255) NULL,
       descricao TEXT NULL,
+      pontos INT NULL,
       PRIMARY KEY (id),
       INDEX eventos_data_idx (data)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
   `);
+  try {
+    await db.query("ALTER TABLE eventos ADD COLUMN pontos INT NULL");
+  } catch (error: any) {
+    if (error?.code !== "ER_DUP_FIELDNAME") throw error;
+  }
   await db.query(`
     CREATE TABLE IF NOT EXISTS presencas (
       id INT NOT NULL AUTO_INCREMENT,
@@ -132,8 +138,11 @@ function dataISO(data: Date) {
   return data.toISOString().slice(0, 10);
 }
 
-function pontosDoStatus(tipo: string, status: string) {
-  return status === "ausente" ? 0 : (PONTUACAO[tipo] || 0);
+function pontosDoStatus(eventoOuTipo: string | { tipo?: string; pontos?: number | null }, status: string) {
+  if (status === "ausente") return 0;
+  const tipo = typeof eventoOuTipo === "string" ? eventoOuTipo : (eventoOuTipo.tipo || "");
+  const pontosPersonalizados = typeof eventoOuTipo === "string" ? null : eventoOuTipo.pontos;
+  return pontosPersonalizados ?? PONTUACAO[tipo] ?? 0;
 }
 
 export { PONTUACAO, formatarTelefone, pontosDoStatus };
@@ -239,7 +248,7 @@ export function registerLegacyRoutes(app: Express) {
         const data = dataISO(date);
         const [existing] = await connection.execute<RowDataPacket[]>("SELECT id FROM eventos WHERE data = ? AND tipo = ? AND nome = ? LIMIT 1", [data, tipo, nome]);
         if (existing.length) return;
-        const [result] = await connection.execute<ResultSetHeader>("INSERT INTO eventos (nome, tipo, data, horario, local, descricao) VALUES (?, ?, ?, NULL, NULL, ?)", [nome, tipo, data, "Evento da programação padrão"]);
+        const [result] = await connection.execute<ResultSetHeader>("INSERT INTO eventos (nome, tipo, data, horario, local, descricao, pontos) VALUES (?, ?, ?, NULL, NULL, ?, NULL)", [nome, tipo, data, "Evento da programação padrão"]);
         criados.push({ id: result.insertId, nome, tipo, data });
       };
       const inicio = new Date(Date.UTC(2026, 1, 1));
@@ -271,22 +280,26 @@ export function registerLegacyRoutes(app: Express) {
   }, req, res));
 
   eventos.post("/", (req, res) => void handler(async (request, response) => {
-    const { nome, tipo, data, horario, local, descricao } = request.body;
+    const { nome, tipo, data, horario, local, descricao, pontos } = request.body;
     if (!nome || !tipo || !data) { response.status(400).json({ erro: "Nome, tipo e data são obrigatórios" }); return; }
-    if (!PONTUACAO[tipo]) { response.status(400).json({ erro: "Tipo de evento inválido" }); return; }
-    const result = await query<ResultSetHeader>("INSERT INTO eventos (nome, tipo, data, horario, local, descricao) VALUES (?, ?, ?, ?, ?, ?)", [nome, tipo, data, horario || null, local || null, descricao || null]);
+    const pontosNumericos = pontos === "" || pontos === null || pontos === undefined ? null : Number(pontos);
+    const pontosFinais = pontosNumericos === null ? (PONTUACAO[tipo] ?? null) : pontosNumericos;
+    if (!Number.isInteger(pontosFinais) || pontosFinais < 0) { response.status(400).json({ erro: "Informe uma pontuação inteira igual ou maior que zero" }); return; }
+    const result = await query<ResultSetHeader>("INSERT INTO eventos (nome, tipo, data, horario, local, descricao, pontos) VALUES (?, ?, ?, ?, ?, ?, ?)", [nome, tipo, data, horario || null, local || null, descricao || null, pontosFinais]);
     response.status(201).json({ id: result.insertId, mensagem: "Evento criado com sucesso" });
   }, req, res));
 
   eventos.put("/:id", (req, res) => void handler(async (request, response) => {
-    const { nome, tipo, data, horario, local, descricao } = request.body;
+    const { nome, tipo, data, horario, local, descricao, pontos } = request.body;
     if (!nome || !tipo || !data) { response.status(400).json({ erro: "Nome, tipo e data são obrigatórios" }); return; }
-    if (!PONTUACAO[tipo]) { response.status(400).json({ erro: "Tipo de evento inválido" }); return; }
+    const pontosNumericos = pontos === "" || pontos === null || pontos === undefined ? null : Number(pontos);
+    const pontosFinais = pontosNumericos === null ? (PONTUACAO[tipo] ?? null) : pontosNumericos;
+    if (!Number.isInteger(pontosFinais) || pontosFinais < 0) { response.status(400).json({ erro: "Informe uma pontuação inteira igual ou maior que zero" }); return; }
     const current = await query<DbRow[]>("SELECT id FROM eventos WHERE id = ? LIMIT 1", [request.params.id]);
     if (!current[0]) { response.status(404).json({ erro: "Evento não encontrado" }); return; }
     await withTransaction(async (connection) => {
-      await connection.execute("UPDATE eventos SET nome = ?, tipo = ?, data = ?, horario = ?, local = ?, descricao = ? WHERE id = ?", [nome, tipo, data, horario || null, local || null, descricao || null, request.params.id]);
-      await connection.execute("UPDATE presencas SET pontos = CASE WHEN status = 'ausente' THEN 0 ELSE ? END WHERE evento_id = ?", [PONTUACAO[tipo], request.params.id]);
+      await connection.execute("UPDATE eventos SET nome = ?, tipo = ?, data = ?, horario = ?, local = ?, descricao = ?, pontos = ? WHERE id = ?", [nome, tipo, data, horario || null, local || null, descricao || null, pontosFinais, request.params.id]);
+      await connection.execute("UPDATE presencas SET pontos = CASE WHEN status = 'ausente' THEN 0 ELSE ? END WHERE evento_id = ?", [pontosFinais, request.params.id]);
     });
     response.json({ mensagem: "Evento atualizado com sucesso" });
   }, req, res));
@@ -304,7 +317,7 @@ export function registerLegacyRoutes(app: Express) {
     if (!eventoRows[0]) { response.status(404).json({ erro: "Evento não encontrado" }); return; }
     const jovemRows = await query<DbRow[]>("SELECT id FROM jovens WHERE id = ? LIMIT 1", [jovem_id]);
     if (!jovemRows[0]) { response.status(404).json({ erro: "Jovem não encontrado" }); return; }
-    const pontos = pontosDoStatus(eventoRows[0].tipo, status);
+    const pontos = pontosDoStatus({ tipo: eventoRows[0].tipo, pontos: eventoRows[0].pontos }, status);
     await query<ResultSetHeader>(
       `INSERT INTO presencas (jovem_id, evento_id, status, pontos) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE status = VALUES(status), pontos = VALUES(pontos)`,
       [jovem_id, request.params.eventoId, status, pontos],
@@ -339,7 +352,7 @@ export function registerLegacyRoutes(app: Express) {
     if (!["presente", "ausente", "justificado"].includes(status)) { response.status(400).json({ erro: "Status inválido" }); return; }
     const eventRows = await query<DbRow[]>("SELECT tipo FROM eventos WHERE id = ? LIMIT 1", [request.params.eventoId]);
     if (!eventRows[0]) { response.status(404).json({ erro: "Evento não encontrado" }); return; }
-    const pontos = pontosDoStatus(eventRows[0].tipo, status);
+    const pontos = pontosDoStatus({ tipo: eventRows[0].tipo, pontos: eventRows[0].pontos }, status);
     await withTransaction(async (connection) => {
       const [jovensRows] = await connection.query<DbRow[]>("SELECT id FROM jovens");
       for (const jovem of jovensRows) {
@@ -361,14 +374,15 @@ export function registerLegacyRoutes(app: Express) {
         try {
           if (!item.data) throw new Error("Data não informada");
           if (!item.tipo) throw new Error("Tipo do evento não informado");
-          if (!PONTUACAO[item.tipo]) throw new Error(`Tipo de evento inválido: ${item.tipo}`);
-          const [eventResult] = await connection.execute<ResultSetHeader>("INSERT INTO eventos (nome, tipo, data, horario, local, descricao) VALUES (?, ?, ?, ?, ?, ?)", [item.nome || item.tipo, item.tipo, item.data, item.horario || null, item.local || null, item.descricao || null]);
+          const pontosEvento = Number.isInteger(Number(item.pontos)) ? Number(item.pontos) : (PONTUACAO[item.tipo] ?? null);
+          if (pontosEvento === null || pontosEvento < 0) throw new Error(`Pontuação inválida: ${item.tipo}`);
+          const [eventResult] = await connection.execute<ResultSetHeader>("INSERT INTO eventos (nome, tipo, data, horario, local, descricao, pontos) VALUES (?, ?, ?, ?, ?, ?, ?)", [item.nome || item.tipo, item.tipo, item.data, item.horario || null, item.local || null, item.descricao || null, pontosEvento]);
           resultado.eventosCriados += 1;
           for (const [field, status] of [["presentes", "presente"], ["justificados", "justificado"]] as const) {
             for (const nome of converterLista(item[field])) {
               const jovem = mapa.get(normalizarTexto(nome));
               if (!jovem) { resultado.falhas.push({ linha: index + 2, nome, motivo: "Jovem não encontrado" }); continue; }
-              await connection.execute(`INSERT INTO presencas (jovem_id, evento_id, status, pontos) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE status = VALUES(status), pontos = VALUES(pontos)`, [jovem.id, eventResult.insertId, status, PONTUACAO[item.tipo]]);
+              await connection.execute(`INSERT INTO presencas (jovem_id, evento_id, status, pontos) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE status = VALUES(status), pontos = VALUES(pontos)`, [jovem.id, eventResult.insertId, status, pontosEvento]);
               resultado.presencasCriadas += 1;
             }
           }

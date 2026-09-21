@@ -16,7 +16,6 @@ export default function Navbar() {
                 <Link to="/jovens">Jovens</Link>
                 {canCall && <Link to="/ranking">Ranking</Link>}
                 <Link to="/eventos">Eventos</Link>
-                {canCall && <Link to="/chamada">Chamada</Link>}
                 <Link to="/importar-chamadas">Importar</Link>
             </div>
             <div className="user-menu">
