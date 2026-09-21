@@ -163,6 +163,10 @@ export function registerAuthRoutes(app: Express) {
   });
 
   app.patch("/api/auth/usuarios/:id", requireRoles("admin"), async (req, res) => {
+    const userId = Number(req.params.id);
+    const currentUser = res.locals.user as AuthUser;
+    if (!Number.isInteger(userId) || userId <= 0) { res.status(400).json({ erro: "Usuário inválido" }); return; }
+    if (userId === currentUser.id && req.body.ativo === false) { res.status(400).json({ erro: "Você não pode desativar o próprio acesso" }); return; }
     const fields: string[] = [];
     const values: unknown[] = [];
     if (req.body.nome !== undefined) { fields.push("nome = ?"); values.push(String(req.body.nome).trim()); }
@@ -170,9 +174,33 @@ export function registerAuthRoutes(app: Express) {
     if (req.body.ativo !== undefined) { fields.push("ativo = ?"); values.push(req.body.ativo ? 1 : 0); }
     if (req.body.senha) { fields.push("senha_hash = ?"); values.push(await hashPassword(String(req.body.senha))); }
     if (!fields.length) { res.status(400).json({ erro: "Nenhuma alteração informada" }); return; }
-    values.push(req.params.id);
+    if (req.body.role !== undefined || req.body.ativo === false) {
+      const [targetRows] = await getAuthPool().execute<DbRow[]>("SELECT role, ativo FROM usuarios WHERE id = ? LIMIT 1", [userId]);
+      if (!targetRows[0]) { res.status(404).json({ erro: "Usuário não encontrado" }); return; }
+      const removesAdmin = targetRows[0].role === "admin" && (req.body.role === "admin" ? req.body.ativo === false : req.body.role !== undefined || req.body.ativo === false);
+      if (removesAdmin) {
+        const [adminRows] = await getAuthPool().query<DbRow[]>("SELECT COUNT(*) AS total FROM usuarios WHERE role = 'admin' AND ativo = 1");
+        if (Number(adminRows[0]?.total || 0) <= 1) { res.status(400).json({ erro: "Mantenha pelo menos um administrador ativo" }); return; }
+      }
+    }
+    values.push(userId);
     await getAuthPool().execute(`UPDATE usuarios SET ${fields.join(", ")} WHERE id = ?`, values);
     res.json({ mensagem: "Usuário atualizado com sucesso" });
+  });
+
+  app.delete("/api/auth/usuarios/:id", requireRoles("admin"), async (req, res) => {
+    const userId = Number(req.params.id);
+    const currentUser = res.locals.user as AuthUser;
+    if (!Number.isInteger(userId) || userId <= 0) { res.status(400).json({ erro: "Usuário inválido" }); return; }
+    if (userId === currentUser.id) { res.status(400).json({ erro: "Você não pode excluir o próprio usuário" }); return; }
+    const [targetRows] = await getAuthPool().execute<DbRow[]>("SELECT id, role FROM usuarios WHERE id = ? LIMIT 1", [userId]);
+    if (!targetRows[0]) { res.status(404).json({ erro: "Usuário não encontrado" }); return; }
+    if (targetRows[0].role === "admin") {
+      const [adminRows] = await getAuthPool().query<DbRow[]>("SELECT COUNT(*) AS total FROM usuarios WHERE role = 'admin' AND ativo = 1");
+      if (Number(adminRows[0]?.total || 0) <= 1) { res.status(400).json({ erro: "Mantenha pelo menos um administrador ativo" }); return; }
+    }
+    await getAuthPool().execute("DELETE FROM usuarios WHERE id = ?", [userId]);
+    res.json({ mensagem: "Usuário excluído com sucesso" });
   });
 }
 

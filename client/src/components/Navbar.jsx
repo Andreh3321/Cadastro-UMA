@@ -17,6 +17,7 @@ export default function Navbar() {
                 {canCall && <Link to="/ranking">Ranking</Link>}
                 <Link to="/eventos">Eventos</Link>
                 <Link to="/importar-chamadas">Importar</Link>
+                {user.role === "admin" && <Link to="/administracao">Administração</Link>}
             </div>
             <div className="user-menu">
                 <span title={ROLE_LABELS[user.role]}>{user.nome}</span>

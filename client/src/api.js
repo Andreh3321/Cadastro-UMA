@@ -328,3 +328,40 @@ export async function sair() {
     const response = await fetch(`${API}/auth/logout`, { method: "POST", credentials: "same-origin" });
     return response.json();
 }
+
+async function respostaAuth(response) {
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.erro || "Não foi possível concluir a operação");
+    return data;
+}
+
+export async function buscarUsuarios() {
+    const response = await fetch(`${API}/auth/usuarios`, { credentials: "same-origin" });
+    const data = await respostaAuth(response);
+    return Array.isArray(data) ? data : [];
+}
+
+export async function criarUsuario(dados) {
+    return respostaAuth(await fetch(`${API}/auth/usuarios`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify(dados),
+    }));
+}
+
+export async function editarUsuario(id, dados) {
+    return respostaAuth(await fetch(`${API}/auth/usuarios/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify(dados),
+    }));
+}
+
+export async function excluirUsuario(id) {
+    return respostaAuth(await fetch(`${API}/auth/usuarios/${id}`, {
+        method: "DELETE",
+        credentials: "same-origin",
+    }));
+}
