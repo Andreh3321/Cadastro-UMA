@@ -2844,3 +2844,25 @@ button {
         font-size: 16px;
     }
 }
+
+
+/* Autenticação e sessão */
+.auth-loading { min-height: 100vh; display: grid; place-items: center; color: #dbe8f7; background: #071a35; }
+.login-page { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: radial-gradient(circle at top right, #263b5b, #071a35 65%); }
+.login-card { width: min(100%, 420px); box-sizing: border-box; padding: 40px; border-radius: 18px; background: #fff; box-shadow: 0 24px 70px rgba(0,0,0,.24); }
+.login-brand { display: flex; flex-direction: column; color: #071a35; letter-spacing: .08em; }
+.login-brand strong { font-size: 25px; letter-spacing: .02em; }
+.login-brand span { font-size: 10px; }
+.login-eyebrow { margin: 34px 0 8px; color: #c5293d; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .15em; }
+.login-card h1 { margin: 0; color: #142942; font-size: 30px; }
+.login-description { color: #64748b; margin: 10px 0 28px; }
+.login-card form { display: grid; gap: 18px; }
+.login-card label { display: grid; gap: 7px; color: #253b55; font-weight: 700; font-size: 14px; }
+.login-card input { border: 1px solid #d5dce6; border-radius: 8px; padding: 13px 14px; font: inherit; color: #142942; }
+.login-card input:focus { outline: 2px solid rgba(197,41,61,.22); border-color: #c5293d; }
+.login-button { border: 0; border-radius: 8px; padding: 13px 16px; color: #fff; background: #c5293d; font: inherit; font-weight: 800; cursor: pointer; }
+.login-button:disabled { opacity: .65; cursor: wait; }
+.login-error { padding: 10px 12px; border-radius: 7px; color: #9f1d30; background: #fff0f1; font-size: 14px; }
+.user-menu { display: flex; align-items: center; gap: 10px; margin-left: 18px; color: #fff; font-size: 12px; }
+.user-menu button { border: 1px solid rgba(255,255,255,.4); border-radius: 6px; padding: 6px 9px; color: #fff; background: transparent; cursor: pointer; }
+@media (max-width: 700px) { .login-card { padding: 30px 24px; } .user-menu { width: 100%; justify-content: center; margin: 4px 0 0; } }
