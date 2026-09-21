@@ -9,6 +9,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { ensureLegacySchema, registerLegacyRoutes } from "../legacy";
+import { ensureAuthSchema, ensureInitialAdmin, registerAuthRoutes } from "../auth";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -31,9 +32,12 @@ async function startServer() {
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   registerStorageProxy(app);
+  registerAuthRoutes(app);
   registerOAuthRoutes(app);
   registerLegacyRoutes(app);
+  await ensureAuthSchema();
   await ensureLegacySchema();
+  await ensureInitialAdmin();
   app.use("/api/trpc", createExpressMiddleware({ router: appRouter, createContext }));
 
   if (process.env.NODE_ENV === "development") await setupVite(app, server);

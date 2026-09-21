@@ -2,6 +2,7 @@ import express, { type Express, type Request, type Response } from "express";
 import multer from "multer";
 import mysql, { type Pool, type PoolConnection, type ResultSetHeader, type RowDataPacket } from "mysql2/promise";
 import { storagePut } from "./storage";
+import { requireAuth, requireRoles } from "./auth";
 
 const PONTUACAO: Record<string, number> = {
   "Culto das irmãs": 100,
@@ -296,7 +297,7 @@ export function registerLegacyRoutes(app: Express) {
     response.json({ mensagem: "Evento excluído com sucesso" });
   }, req, res));
 
-  eventos.post("/:eventoId/chamada", (req, res) => void handler(async (request, response) => {
+  eventos.post("/:eventoId/chamada", requireRoles("admin", "secretario", "lider"), (req, res) => void handler(async (request, response) => {
     const { jovem_id, status } = request.body;
     if (!["presente", "ausente", "justificado"].includes(status)) { response.status(400).json({ erro: "Status inválido" }); return; }
     const eventoRows = await query<DbRow[]>("SELECT * FROM eventos WHERE id = ? LIMIT 1", [request.params.eventoId]);
@@ -311,7 +312,7 @@ export function registerLegacyRoutes(app: Express) {
     response.json({ mensagem: "Chamada registrada com sucesso", status, pontos });
   }, req, res));
 
-  eventos.post("/:eventoId/finalizar-chamada", (req, res) => void handler(async (request, response) => {
+  eventos.post("/:eventoId/finalizar-chamada", requireRoles("admin", "secretario", "lider"), (req, res) => void handler(async (request, response) => {
     const eventRows = await query<DbRow[]>("SELECT id FROM eventos WHERE id = ? LIMIT 1", [request.params.eventoId]);
     if (!eventRows[0]) { response.status(404).json({ erro: "Evento não encontrado" }); return; }
     const result = await query<ResultSetHeader>(
@@ -321,7 +322,7 @@ export function registerLegacyRoutes(app: Express) {
     response.json({ mensagem: "Chamada finalizada com sucesso", ausentes: result.affectedRows });
   }, req, res));
 
-  eventos.delete("/:eventoId/chamada/:jovemId", (req, res) => void handler(async (request, response) => {
+  eventos.delete("/:eventoId/chamada/:jovemId", requireRoles("admin", "secretario", "lider"), (req, res) => void handler(async (request, response) => {
     await query<ResultSetHeader>("DELETE FROM presencas WHERE evento_id = ? AND jovem_id = ?", [request.params.eventoId, request.params.jovemId]);
     response.json({ mensagem: "Chamada desmarcada com sucesso" });
   }, req, res));
@@ -333,7 +334,7 @@ export function registerLegacyRoutes(app: Express) {
     response.json(rows);
   }, req, res));
 
-  ranking.post("/:eventoId/chamada/todos", (req, res) => void handler(async (request, response) => {
+  ranking.post("/:eventoId/chamada/todos", requireRoles("admin", "secretario", "lider"), (req, res) => void handler(async (request, response) => {
     const { status } = request.body;
     if (!["presente", "ausente", "justificado"].includes(status)) { response.status(400).json({ erro: "Status inválido" }); return; }
     const eventRows = await query<DbRow[]>("SELECT tipo FROM eventos WHERE id = ? LIMIT 1", [request.params.eventoId]);
@@ -380,8 +381,8 @@ export function registerLegacyRoutes(app: Express) {
   }, req, res));
 
   app.get("/api/health", (_req, res) => res.json({ ok: true, app: "UMADEB Jovens" }));
-  app.use("/api/jovens", jovens);
-  app.use("/api/eventos", eventos);
-  app.use("/api/ranking", ranking);
-  app.use("/api/importacao", importacao);
+  app.use("/api/jovens", requireAuth, jovens);
+  app.use("/api/eventos", requireAuth, eventos);
+  app.use("/api/ranking", requireRoles("admin", "secretario", "lider"), ranking);
+  app.use("/api/importacao", requireAuth, importacao);
 }

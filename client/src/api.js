@@ -305,3 +305,26 @@ export async function gerarProgramacao() {
 
 
 export { API };
+
+
+export async function consultarSessao() {
+    const response = await fetch(`${API}/auth/me`, { credentials: "same-origin" });
+    return response.json();
+}
+
+export async function entrar(login, senha) {
+    const response = await fetch(`${API}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ login, senha }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.erro || "Login inválido");
+    return data;
+}
+
+export async function sair() {
+    const response = await fetch(`${API}/auth/logout`, { method: "POST", credentials: "same-origin" });
+    return response.json();
+}
