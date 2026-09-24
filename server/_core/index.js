@@ -2,11 +2,7 @@ import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
-import { createExpressMiddleware } from "@trpc/server/adapters/express";
-import { registerOAuthRoutes } from "./oauth";
 import { registerStorageProxy } from "./storageProxy";
-import { appRouter } from "../routers";
-import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { ensureLegacySchema, registerLegacyRoutes } from "../legacy";
 import {
@@ -48,20 +44,11 @@ async function startServer() {
 
   registerStorageProxy(app);
   registerAuthRoutes(app);
-  registerOAuthRoutes(app);
   registerLegacyRoutes(app);
 
   await ensureAuthSchema();
   await ensureLegacySchema();
   await ensureInitialAdmin();
-
-  app.use(
-    "/api/trpc",
-    createExpressMiddleware({
-      router: appRouter,
-      createContext,
-    })
-  );
 
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
