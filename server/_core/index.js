@@ -2,7 +2,6 @@ import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
-import { registerStorageProxy } from "./storageProxy";
 import { serveStatic, setupVite } from "./vite";
 import { ensureLegacySchema, registerLegacyRoutes } from "../legacy";
 import {
@@ -42,7 +41,6 @@ async function startServer() {
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-  registerStorageProxy(app);
   registerAuthRoutes(app);
   registerLegacyRoutes(app);
 
