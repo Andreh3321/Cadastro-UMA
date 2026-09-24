@@ -1,7 +1,7 @@
 import express, { type Express, type Request, type Response } from "express";
 import multer from "multer";
 import mysql, { type Pool, type PoolConnection, type ResultSetHeader, type RowDataPacket } from "mysql2/promise";
-import { storagePut } from "./storage";
+import { storagePutPhoto } from "./storage";
 import { requireAuth, requireRoles } from "./auth";
 
 const PONTUACAO: Record<string, number> = {
@@ -149,8 +149,12 @@ export { PONTUACAO, formatarTelefone, pontosDoStatus };
 
 async function salvarFoto(file?: Express.Multer.File) {
   if (!file) return null;
-  const extension = file.originalname.includes(".") ? file.originalname.slice(file.originalname.lastIndexOf(".")) : "";
-  const uploaded = await storagePut(`umadeb-jovens/fotos/${Date.now()}${extension}`, file.buffer, file.mimetype || "application/octet-stream");
+
+  const uploaded = await storagePutPhoto(
+    file.buffer,
+    file.mimetype || "application/octet-stream",
+  );
+
   return uploaded.url;
 }
 

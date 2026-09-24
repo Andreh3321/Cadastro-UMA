@@ -1,12 +1,10 @@
-// Preconfigured storage helpers for Manus WebDev templates
-// Uploads via Forge Server presigned URL to S3 (PUT direct).
-// Downloads return /manus-storage/{key} paths served via 307 redirect.
+// Armazenamento de arquivos: Manus para recursos existentes e Cloudinary para fotos novas.
 
-import { ENV } from "./_core/env";
+import { v2 as cloudinary } from "cloudinary";
 
 function getForgeConfig() {
-  const forgeUrl = ENV.forgeApiUrl;
-  const forgeKey = ENV.forgeApiKey;
+  const forgeUrl = process.env.BUILT_IN_FORGE_API_URL;
+  const forgeKey = process.env.BUILT_IN_FORGE_API_KEY;
 
   if (!forgeUrl || !forgeKey) {
     throw new Error(
@@ -17,26 +15,21 @@ function getForgeConfig() {
   return { forgeUrl: forgeUrl.replace(/\/+$/, ""), forgeKey };
 }
 
-function normalizeKey(relKey: string): string {
+function normalizeKey(relKey) {
   return relKey.replace(/^\/+/, "");
 }
 
-function appendHashSuffix(relKey: string): string {
+function appendHashSuffix(relKey) {
   const hash = crypto.randomUUID().replace(/-/g, "").slice(0, 8);
   const lastDot = relKey.lastIndexOf(".");
   if (lastDot === -1) return `${relKey}_${hash}`;
   return `${relKey.slice(0, lastDot)}_${hash}${relKey.slice(lastDot)}`;
 }
 
-export async function storagePut(
-  relKey: string,
-  data: Buffer | Uint8Array | string,
-  contentType = "application/octet-stream",
-): Promise<{ key: string; url: string }> {
+export async function storagePut(relKey, data, contentType = "application/octet-stream") {
   const { forgeUrl, forgeKey } = getForgeConfig();
   const key = appendHashSuffix(normalizeKey(relKey));
 
-  // 1. Get presigned PUT URL from Forge
   const presignUrl = new URL("v1/storage/presign/put", forgeUrl + "/");
   presignUrl.searchParams.set("path", key);
 
@@ -49,14 +42,13 @@ export async function storagePut(
     throw new Error(`Storage presign failed (${presignResp.status}): ${msg}`);
   }
 
-  const { url: s3Url } = (await presignResp.json()) as { url: string };
+  const { url: s3Url } = await presignResp.json();
   if (!s3Url) throw new Error("Forge returned empty presign URL");
 
-  // 2. PUT file directly to S3
   const blob =
     typeof data === "string"
       ? new Blob([data], { type: contentType })
-      : new Blob([data as any], { type: contentType });
+      : new Blob([data], { type: contentType });
 
   const uploadResp = await fetch(s3Url, {
     method: "PUT",
@@ -71,12 +63,12 @@ export async function storagePut(
   return { key, url: `/manus-storage/${key}` };
 }
 
-export async function storageGet(relKey: string): Promise<{ key: string; url: string }> {
+export async function storageGet(relKey) {
   const key = normalizeKey(relKey);
   return { key, url: `/manus-storage/${key}` };
 }
 
-export async function storageGetSignedUrl(relKey: string): Promise<string> {
+export async function storageGetSignedUrl(relKey) {
   const { forgeUrl, forgeKey } = getForgeConfig();
   const key = normalizeKey(relKey);
 
@@ -92,6 +84,41 @@ export async function storageGetSignedUrl(relKey: string): Promise<string> {
     throw new Error(`Storage signed URL failed (${resp.status}): ${msg}`);
   }
 
-  const { url } = (await resp.json()) as { url: string };
+  const { url } = await resp.json();
   return url;
+}
+
+export async function storagePutPhoto(data, contentType = "application/octet-stream") {
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  const apiKey = process.env.CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+  if (!cloudName || !apiKey || !apiSecret) {
+    throw new Error("Configuração do Cloudinary ausente");
+  }
+
+  cloudinary.config({
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret,
+  });
+
+  return new Promise((resolve, reject) => {
+    const upload = cloudinary.uploader.upload_stream(
+      {
+        folder: "umadeb-jovens/fotos",
+        resource_type: "image",
+      },
+      (error, result) => {
+        if (error || !result) {
+          reject(error ?? new Error("O Cloudinary não retornou o arquivo enviado"));
+          return;
+        }
+
+        resolve({ url: result.secure_url });
+      },
+    );
+
+    upload.end(data);
+  });
 }
