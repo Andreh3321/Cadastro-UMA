@@ -68,7 +68,11 @@ export default function JovemModal({
                     {jovem.foto ? (
 
                         <img
-                            src={`${API}${jovem.foto}`}
+                            src={
+                                jovem.foto.startsWith("http")
+                                    ? jovem.foto
+                                    : `${API}${jovem.foto}`
+                            }
                             alt={jovem.nome}
                         />
 

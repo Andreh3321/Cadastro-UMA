@@ -5,7 +5,11 @@ export default function JovemCard({ jovem, onClick }) {
         <div className="jovem-card" onClick={onClick}>
             <div className="jovem-foto">
                 {jovem.foto ? (
-                    <img src={`${API}${jovem.foto}`} alt={jovem.nome} />
+                    <img src={
+                        jovem.foto.startsWith("http")
+                            ? jovem.foto
+                            : `${API}${jovem.foto}`
+                    } alt={jovem.nome} />
                 ) : (
                     <div className="sem-foto">
                         ?
